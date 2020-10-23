@@ -1,7 +1,7 @@
 // Import styles
 import '../styles/style.scss';
 
-import Toolkit from './toolkit/toolkit.ts';
+import Toolkit from './toolkit/toolkit';
 
 // Put something onto the page
 const appRoot: HTMLDivElement = document.querySelector('#appRoot');

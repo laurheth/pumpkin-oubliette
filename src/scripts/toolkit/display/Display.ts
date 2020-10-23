@@ -1,4 +1,4 @@
-// Display parameters
+/** Display parameters */
 interface DisplayParams {
     target: HTMLDivElement;
     width: number;
@@ -7,16 +7,16 @@ interface DisplayParams {
     tileHeight?: number;
 }
 
-// Class to keep track of each individual tile in the display
+/** Class to keep track of each individual tile in the display */
 class Tile {
-    // Contents of the tile
+    /** Contents of the tile  */
     private _content: string | HTMLElement;
-    // Background colour.
+    /** Background colour. */
     private _background: string;
-    // Foreground colour
+    /** Foreground colour */
     private _foreground: string;
 
-    // Element this tile corresponds to in the DOM
+    /** Element this tile corresponds to in the DOM */
     readonly element: HTMLDivElement;
 
     constructor(
@@ -26,48 +26,58 @@ class Tile {
     ) {
         this.element = document.createElement('div');
         this.content = content;
+        this.foreground = foreground;
+        this.background = background;
     };
 
-    // Getter and setter for content
+    /** Get or set the tile contents */
     get content(): string | HTMLElement {
         return this._content;
     }
 
     set content(newContent: string | HTMLElement) {
-        // If content is a string, just add it
-        if (typeof newContent === 'string') {
-            this.element.innerHTML = newContent;
-        }
-        // If it is an element, empty the tile and append the new content
-        else {
-            while(this.element.lastElementChild) {
-                this.element.removeChild(this.element.lastElementChild);
+        // Only update if the new and old content don't match
+        if (this._content !== newContent) {
+            // If content is a string, just add it
+            if (typeof newContent === 'string') {
+                this.element.innerHTML = newContent;
             }
-            this.element.appendChild(newContent);
+            // If it is an element, empty the tile and append the new content
+            else {
+                while(this.element.lastElementChild) {
+                    this.element.removeChild(this.element.lastElementChild);
+                }
+                this.element.appendChild(newContent);
+            }
         }
     }
 
-    // Getters and setters for color
+    /** Get or set the background colour */
     get background(): string {
         return this._background;
     }
+    
+    set background(newBackground: string) {
+        if (newBackground !== this._background) {
+            this._background = newBackground;
+            this.element.style.backgroundColor = newBackground;
+        }
+    }
 
+    /** Get or set the foreground colour */
     get foreground(): string {
         return this._foreground;
     }
 
-    set background(newBackground: string) {
-        this._background = newBackground;
-        this.element.style.backgroundColor = newBackground;
-    }
-
     set foreground(newForeground: string) {
-        this._foreground = newForeground;
-        this.element.style.color = newForeground;
+        if (newForeground !== this._foreground) {
+            this._foreground = newForeground;
+            this.element.style.color = newForeground;
+        }
     }
 }
 
-// Display class
+/** Display class, to create and control a display */
 class Display {
 
 
