@@ -6,9 +6,5 @@ import Toolkit from './toolkit/toolkit';
 // Put something onto the page
 const appRoot: HTMLDivElement = document.querySelector('#appRoot');
 
-// ...and an awesome paragraph
-const paragraph: HTMLParagraphElement = document.createElement('p');
-const text: Text = document.createTextNode('Hello world!');
-
-paragraph.appendChild(text);
-appRoot.appendChild(paragraph);
+// Create a new display object
+const display = new Toolkit.Display({target: appRoot, width: 10, height: 10});

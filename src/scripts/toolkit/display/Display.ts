@@ -1,10 +1,21 @@
+import css from './Display.css';
+
 /** Display parameters */
 interface DisplayParams {
+    /** Target div to use as the display. */
     target: HTMLDivElement;
+    /** Width in tiles of the display. */
     width: number;
+    /** Height in tiles of the display. */
     height: number;
+    /** Optional width of each tile. */
     tileWidth?: number;
+    /** Optional height of each tile. */
     tileHeight?: number;
+    /** Default background colour of the display */
+    background?: string;
+    /** Default foreground colour of the display */
+    foreground?: string;
 }
 
 /** Class to keep track of each individual tile in the display */
@@ -77,16 +88,84 @@ class Tile {
     }
 }
 
+/** dimensions interface */
+interface Dimension {
+    width: number;
+    height: number;
+};
+
 /** Display class, to create and control a display */
 class Display {
+    private _width: number;
+    private _height: number;
+    private target: HTMLDivElement;
+    readonly element: HTMLDivElement;
+    private tiles: Array<Tile>;
+    private background: string;
+    private foreground: string;
 
-
-
+    /** Create a new Display
+     *  @param {DisplayParams} parameters - Object of parameters to initialize the display.
+     */
     constructor(
         parameters: DisplayParams
     ) {
+        const {target, width, height, background, foreground, ...rest} = parameters;
+        // Set the target
+        this.target = target;
 
-    }
+        // Create the element for the display
+        this.element = document.createElement('div');
+        
+        
+        
+        // Apply some default styles
+        this.element.classList.add(css.display);
+        this.background = (background) ? background : '#000000';
+        this.element.style.background = this.background;
+        this.foreground = (foreground) ? foreground : '#ffffff';
+        this.element.style.color = this.foreground;
+
+        // Set the display dimensions
+        this.dimensions = {width, height};
+
+        // Attach display to the target element
+        this.target.appendChild(this.element);
+
+
+    };
+
+    /** Get or set the display dimensions */
+    get dimensions(): Dimension {
+        return {width: this._width, height:this._height};
+    };
+
+    set dimensions(newDimensions: Dimension) {
+        if (newDimensions.width !== this._width && newDimensions.height !== this._height) {
+            this._width = newDimensions.width;
+            this._height = newDimensions.height;
+            // Reset the display to accomodate the new size
+            this.allocateDisplay();
+        }
+    };
+
+    /** Build the array of tiles and attach them to the display */
+    allocateDisplay() {
+        // Start a fresh tiles array
+        this.tiles = [];
+
+        // Generate tiles
+        const length = this._height * this._width;
+        for (let i=0;i<length;i++) {
+            // Make a new tile
+            const newTile = new Tile('',this.background,this.foreground);
+            // Add it to the list of tiles
+            this.tiles.push(newTile);
+            // Append to the actual display
+            this.element.appendChild(newTile.element);
+        }
+    };
+
 };
 
 export default Display;

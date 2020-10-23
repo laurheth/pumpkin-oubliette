@@ -25,12 +25,19 @@ module.exports = {
                 use: 'ts-loader',
                 exclude: /node_modules/,
             },
-            // Load SCSS
+            // Load CSS & SCSS
             {
-                test: /\.s[ac]ss$/,
+                test: /\.(css|s[ac]ss)$/,
                 use: [
                     MiniCssExtractPlugin.loader,
-                    'css-loader',
+                    'css-modules-typescript-loader',
+                    {
+                        loader: 'css-loader',
+                        options: { 
+                            modules: true,
+                            importLoaders: 1,
+                        }
+                    },
                     {
                         loader: 'sass-loader',
                         options: {
@@ -78,7 +85,7 @@ module.exports = {
     },
     // Recognize both .ts and .js extensions
     resolve: {
-        extensions: [ '.ts', '.js' ],
+        extensions: [ '.ts', '.js', '.css' ],
     },
     // Where to put the output
     output: {
