@@ -7,4 +7,4 @@ import Toolkit from './toolkit/toolkit';
 const appRoot: HTMLDivElement = document.querySelector('#appRoot');
 
 // Create a new display object
-const display = new Toolkit.Display({target: appRoot, width: 10, height: 10});
+const display = new Toolkit.Display({target: appRoot, width: 40, height: 30, tileWidth:'1rem'});
