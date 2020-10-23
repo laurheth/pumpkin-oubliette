@@ -104,6 +104,7 @@ class Tile {
                 }
                 this.contentElement.appendChild(newContent);
             }
+            this._content = newContent;
         }
     }
 
