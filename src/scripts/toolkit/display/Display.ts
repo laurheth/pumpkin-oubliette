@@ -148,7 +148,7 @@ class Display {
                 // Make a new tile
                 const newTile = new Tile(
                     {
-                        content:'#',
+                        content:'',
                         background:this.background,
                         foreground:this.foreground
                     },
