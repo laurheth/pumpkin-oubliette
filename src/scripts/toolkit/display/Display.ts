@@ -171,10 +171,11 @@ class Display {
     private target: HTMLDivElement;
     readonly element: HTMLDivElement;
     private tiles: Array<Tile>;
-    private background: string;
-    private foreground: string;
 
-    private tileSize: TileSize;
+    private _background: string;
+    private _foreground: string;
+
+    private _tileSize: TileSize;
 
     /** Create a new Display
      *  @param {DisplayParams} parameters - Object of parameters to initialize the display.
@@ -192,10 +193,7 @@ class Display {
         // Apply some default styles
         this.element.classList.add(css.display);
         this.background = (background) ? background : '#000000';
-        this.element.style.background = this.background;
         this.foreground = (foreground) ? foreground : '#ffffff';
-        this.element.style.color = this.foreground;
-        this.element.style.fontSize = (tileHeight) ? tileHeight : '1rem';
 
         // Set the display dimensions
         this.tileSize = {
@@ -205,8 +203,19 @@ class Display {
         this.dimensions = {width, height};
 
         // Attach display to the target element
+        this.target.classList.add(css.displayContainer);
         this.target.appendChild(this.element);
     };
+
+    /** Tile size */
+    get tileSize(): TileSize {
+        return this._tileSize;
+    }
+
+    set tileSize(newTileSize: TileSize) {
+        this._tileSize = newTileSize;
+        this.element.style.fontSize = newTileSize.tileHeight;
+    }
 
     /** Get or set the display dimensions */
     get dimensions(): Dimension {
@@ -224,6 +233,27 @@ class Display {
             this.allocateDisplay();
         }
     };
+
+    /** Background colour */
+    get background(): string {
+        return this._background;
+    }
+
+    set background(newBackground: string) {
+        this._background = newBackground;
+        this.element.style.background = newBackground;
+        this.target.style.background = newBackground;
+    }
+
+    /** Foreground colour */
+    get foreground(): string {
+        return this._foreground;
+    }
+
+    set foreground(newForeground: string) {
+        this._foreground = newForeground;
+        this.element.style.color = newForeground;
+    }
 
     /** Build the array of tiles and attach them to the display */
     allocateDisplay() {

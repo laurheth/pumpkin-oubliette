@@ -1,6 +1,15 @@
+// Class to apply to the appRoot to contain the display
+.displayContainer {
+    position: relative;
+    overflow: hidden;
+}
+
 // Built-in styling for the display
 .display {
-    position: relative;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
     .tile {
         position: absolute;
         left: 0;
