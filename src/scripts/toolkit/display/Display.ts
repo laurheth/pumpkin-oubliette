@@ -1,6 +1,6 @@
 import { takeWhile } from 'lodash';
 import css from './Display.module.scss';
-import { DisplayParams, TileSize, Dimension, TileOptions } from './DisplayInterfaces';
+import { DisplayParams, TileSize, Dimension, TileOptions, Position } from './DisplayInterfaces';
 import { Tile } from './Tile';
 
 /** Display class, to create and control a display */
@@ -10,7 +10,7 @@ class Display {
     private target: HTMLDivElement;
     readonly element: HTMLDivElement;
     private tiles: Array<Tile>;
-
+    private centerPosition: Position;
     private _background: string;
     private _foreground: string;
 
@@ -74,6 +74,7 @@ class Display {
             // Reset the display to accomodate the new size
             this.allocateDisplay();
             this.resetSize();
+            this.moveToCenter();
         }
     };
 
@@ -105,6 +106,31 @@ class Display {
         this._foreground = newForeground;
         this.element.style.color = newForeground;
     };
+
+    /** Position to center the display view on */
+    centerDisplay(x?: number, y?: number) {
+        if (typeof x === "undefined" || typeof y === "undefined") {
+            this.centerPosition = undefined;
+        }
+        else {
+            this.centerPosition = {
+                x: x,
+                y: y
+            }
+        }
+        this.moveToCenter();
+    }
+
+    private moveToCenter() {
+        if (this.centerPosition) {
+            const xPercent = (this.centerPosition.x + 0.5) / this.dimensions.width;
+            const yPercent = (this.centerPosition.y + 0.5) / this.dimensions.height;
+            this.element.style.transform = `translate(${-xPercent*100}%,${-yPercent*100}%)`;
+        }
+        else {
+            this.element.style.transform = "";
+        }
+    }
 
     /** Build the array of tiles and attach them to the display */
     allocateDisplay() {

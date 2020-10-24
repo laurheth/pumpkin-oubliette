@@ -39,8 +39,10 @@ export interface TileOptions {
     foreground?: string;
 }
 
-/** Position interface */
+/** Position on the display */
 export interface Position {
+    /** Position relative to the left of the display. */
     x: number,
+    /** Position relative to the top of the display */
     y: number
 }
