@@ -37,8 +37,8 @@ class Display {
         // Set the display dimensions
         this.dimensions = {width, height};
         this.tileSize = {
-            tileWidth: (tileWidth) ? tileWidth : '1rem',
-            tileHeight: (tileHeight) ? tileHeight : (tileWidth) ? tileWidth : '1rem'
+            tileWidth: (tileWidth) ? tileWidth : 16,
+            tileHeight: (tileHeight) ? tileHeight : (tileWidth) ? tileWidth : 16
         };
 
         // Attach display to the target element
@@ -53,14 +53,13 @@ class Display {
 
     set tileSize(newTileSize: TileSize) {
         this._tileSize = newTileSize;
-        this.element.style.fontSize = newTileSize.tileHeight;
+        this.element.style.fontSize = `${newTileSize.tileHeight}px`;
         this.tiles?.forEach(tile=>{
             tile.tileWidth = newTileSize.tileWidth;
             tile.tileHeight = newTileSize.tileHeight;
+            tile.position = tile.position;
         });
-
-        this.element.style.width = `calc(${this._width} * ${newTileSize.tileWidth})`;
-        this.element.style.height = `calc(${this._height} * ${newTileSize.tileHeight})`;
+        this.resetSize();
     };
 
     /** Get or set the display dimensions */
@@ -74,8 +73,17 @@ class Display {
             this._height = newDimensions.height;
             // Reset the display to accomodate the new size
             this.allocateDisplay();
+            this.resetSize();
         }
     };
+
+    /** Reset display element size */
+    resetSize() {
+        if (this._width && this._height && this.tileSize) {
+            this.element.style.width = `${this._width * this.tileSize.tileWidth}px`;
+            this.element.style.height = `${this._height * this.tileSize.tileHeight}px`;
+        }
+    }
 
     /** Background colour */
     get background(): string {
@@ -102,6 +110,11 @@ class Display {
     allocateDisplay() {
         // Start a fresh tiles array
         this.tiles = [];
+
+        // Empty display if it has contents already (REFACTOR THIS LATER)
+        while(this.element.lastElementChild) {
+            this.element.removeChild(this.element.lastElementChild);
+        }
 
         // Generate tiles
         for (let y=0;y<this._height;y++) {
@@ -136,7 +149,7 @@ class Display {
         else {
             return undefined;
         }
-    }
+    };
 
     /** Set details for the specified tile */
     setTile(x:number, y:number, newOptions:TileOptions) {
@@ -144,15 +157,40 @@ class Display {
         if (tile) {
             tile.setOptions(newOptions);
         }
-    }
+    };
 
-    // TODO: A target size to numTiles method
-    calculateDimensions() : Dimension {
-        
-    }
+    /** Given the size of the target container, and the tile size, determine the number of tiles needed. */
+    calculateDimensions(clientRect = this.target.getBoundingClientRect()) : Dimension {
+        const clientWidth = Math.abs(clientRect.right - clientRect.left);
+        const clientHeight = Math.abs(clientRect.bottom - clientRect.top);
+        // Round down; we do not want partial tiles
+        return {
+            width: Math.floor(clientWidth / this.tileSize.tileWidth),
+            height: Math.floor(clientHeight / this.tileSize.tileHeight)
+        }
+    };
 
-    // TODO: A target size + numTiles to tileSize method
+    /** Given the size of the target container, and the number of tiles, determine the tile size needed
+     *  This assumes square tiles are desired.
+    */
+    calculateTileSize(clientRect = this.target.getBoundingClientRect()) : TileSize {
+        const clientWidth = Math.abs(clientRect.right - clientRect.left);
+        const clientHeight = Math.abs(clientRect.bottom - clientRect.top);
+        // This could potentially give absurd results, so get the "naive first-guess" here
+        const size : TileSize = {
+            tileWidth: clientWidth / this.dimensions.width,
+            tileHeight: clientHeight / this.dimensions.height
+        }
 
+        // Choose the lowest of the two. This is the maximum square tile size that will fit the given dimensions
+        const maxTileSize = Math.min(size.tileWidth, size.tileHeight);
+
+        // Don't bother rounding; fonts can be precise numbers
+        return {
+            tileWidth: maxTileSize,
+            tileHeight: maxTileSize
+        }
+    };
 };
 
 export default Display;

@@ -15,8 +15,8 @@ export class Tile {
     private _position: Position;
 
     /** Size of a title, in CSS units */
-    private _tileHeight: string;
-    private _tileWidth: string;
+    private _tileHeight: number;
+    private _tileWidth: number;
 
     /** Element this tile corresponds to in the DOM */
     readonly element: HTMLDivElement;
@@ -37,7 +37,7 @@ export class Tile {
         this.background = background;
 
         // Set the tile size
-        this.tileWidth = (tileSize?.tileWidth) ? tileSize.tileWidth : `1rem`;
+        this.tileWidth = (tileSize?.tileWidth) ? tileSize.tileWidth : 16;
         this.tileHeight = (tileSize?.tileHeight) ? tileSize.tileHeight : this.tileWidth;
 
         // Set the tile position
@@ -103,28 +103,28 @@ export class Tile {
 
     set position(position: Position) {
         this._position = {...position};
-        this.element.style.left = `calc(${position.x} * ${this.tileWidth})`;
-        this.element.style.top = `calc(${position.y} * ${this.tileHeight})`;
+        this.element.style.left = `${position.x * this.tileWidth}px`;
+        this.element.style.top = `${position.y * this.tileHeight}px`;
     }
 
     /** Get or set tile width */
-    get tileWidth():string {
+    get tileWidth():number {
         return this._tileWidth;
     }
 
-    set tileWidth(newWidth: string) {
+    set tileWidth(newWidth: number) {
         this._tileWidth = newWidth;
-        this.element.style.width = newWidth;
+        this.element.style.width = `${newWidth}px`;
     }
 
     /** Get or set the tile height */
-    get tileHeight():string {
+    get tileHeight():number {
         return this._tileHeight;
     }
 
-    set tileHeight(newHeight: string) {
+    set tileHeight(newHeight: number) {
         this._tileHeight = newHeight;
-        this.element.style.height = newHeight;
+        this.element.style.height = `${newHeight}px`;
     }
 
     /** Set options for the tile */
