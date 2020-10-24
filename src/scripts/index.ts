@@ -22,4 +22,6 @@ for (let i=0;i<20;i++) {
     }
 }
 
+display.setTile(12,10,{content:`🐌`});
+
 display.centerDisplay(1,1);

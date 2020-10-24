@@ -135,12 +135,13 @@ class Display {
     /** Build the array of tiles and attach them to the display */
     allocateDisplay() {
         // Start a fresh tiles array
-        this.tiles = [];
-
-        // Empty display if it has contents already (REFACTOR THIS LATER)
-        while(this.element.lastElementChild) {
-            this.element.removeChild(this.element.lastElementChild);
+        if (this.tiles) {
+            // Empty display if it has contents already
+            this.tiles.forEach(tile=>{
+                this.element.removeChild(tile.element);
+            });
         }
+        this.tiles = [];
 
         // Generate tiles
         for (let y=0;y<this._height;y++) {
