@@ -1,5 +1,5 @@
 import css from './Display.module.scss';
-import { TileSize, Position } from './DisplayInterfaces';
+import { TileSize, Position, TileOptions } from './DisplayInterfaces';
 
 /** Class to keep track of each individual tile in the display */
 export class Tile {
@@ -22,9 +22,7 @@ export class Tile {
     readonly element: HTMLDivElement;
 
     constructor(
-        content: string | HTMLElement,
-        background: string,
-        foreground: string,
+        tileOptions: TileOptions,
         position: Position,
         tileSize?: TileSize,
     ) {
@@ -33,6 +31,7 @@ export class Tile {
         this.element.classList.add(css.tile);
 
         // Set tile content and colour scheme
+        const { content='', foreground='#ffffff', background='#000000' } = tileOptions;
         this.content = content;
         this.foreground = foreground;
         this.background = background;
@@ -126,5 +125,19 @@ export class Tile {
     set tileHeight(newHeight: string) {
         this._tileHeight = newHeight;
         this.element.style.height = newHeight;
+    }
+
+    /** Set options for the tile */
+    setOptions(newOptions: TileOptions) {
+        const {content, background,foreground} = newOptions;
+        if (content) {
+            this.content = content;
+        }
+        if (background) {
+            this.background = background;
+        }
+        if (foreground) {
+            this.foreground = foreground;
+        }
     }
 }

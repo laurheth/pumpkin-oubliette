@@ -1,5 +1,6 @@
+import { takeWhile } from 'lodash';
 import css from './Display.module.scss';
-import { DisplayParams, TileSize, Dimension } from './DisplayInterfaces';
+import { DisplayParams, TileSize, Dimension, TileOptions } from './DisplayInterfaces';
 import { Tile } from './Tile';
 
 /** Display class, to create and control a display */
@@ -106,7 +107,15 @@ class Display {
         for (let y=0;y<this._height;y++) {
             for (let x=0;x<this._width;x++) {
                 // Make a new tile
-                const newTile = new Tile('#',this.background,this.foreground,{x:x,y:y},this.tileSize);
+                const newTile = new Tile(
+                    {
+                        content:'#',
+                        background:this.background,
+                        foreground:this.foreground
+                    },
+                    {x:x,y:y},
+                    this.tileSize
+                );
                 // Add it to the list of tiles
                 this.tiles.push(newTile);
                 // Append to the actual display
@@ -114,6 +123,35 @@ class Display {
             }
         }
     };
+
+    /** Get the display tile at the specified position
+     * @param {number} x - Position from the left side of the display
+     * @param {number} y - Position from the top of the display
+    */
+    getTile(x:number, y:number) : Tile | undefined {
+        if (x>=0 && x<this._width && y>=0 && y<this._height) {
+            const index = x + y * this._width;
+            return this.tiles[index];
+        }
+        else {
+            return undefined;
+        }
+    }
+
+    /** Set details for the specified tile */
+    setTile(x:number, y:number, newOptions:TileOptions) {
+        const tile = this.getTile(x,y);
+        if (tile) {
+            tile.setOptions(newOptions);
+        }
+    }
+
+    // TODO: A target size to numTiles method
+    calculateDimensions() : Dimension {
+        
+    }
+
+    // TODO: A target size + numTiles to tileSize method
 
 };
 

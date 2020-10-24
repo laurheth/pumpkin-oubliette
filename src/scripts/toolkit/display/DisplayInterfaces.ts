@@ -18,14 +18,25 @@ export interface DisplayParams {
 
 /** dimensions interface */
 export interface Dimension {
+    /** Number of tiles wide. */
     width: number;
+    /** Number of tiles high. */
     height: number;
 };
 
 /** Tilesize interface */
 export interface TileSize {
+    /** Width of a tile. */
     tileWidth: string;
+    /** Height of a tile */
     tileHeight: string;
+}
+
+/** Tile options interface */
+export interface TileOptions {
+    content?: string|HTMLElement;
+    background?: string;
+    foreground?: string;
 }
 
 /** Position interface */
