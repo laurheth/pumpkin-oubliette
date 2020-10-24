@@ -53,7 +53,6 @@ module.exports = {
                 test: /\.(css|s[ac]ss)$/,
                 use: [
                     MiniCssExtractPlugin.loader,
-                    'css-modules-typescript-loader',
                     {
                         loader: 'css-loader',
                         options: { 
