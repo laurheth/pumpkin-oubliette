@@ -25,7 +25,7 @@ module.exports = {
                 use: 'ts-loader',
                 exclude: /node_modules/,
             },
-            // Load CSS & SCSS
+            // Load CSS & SCSS modules
             {
                 test: /\.(css|s[ac]ss)$/,
                 use: [
@@ -45,7 +45,30 @@ module.exports = {
                             implementation: require('sass'),
                         }
                     }
-                ]
+                ],
+                include: /\.module\.(css|s[ac]ss)$/
+            },
+            // Load CSS & SCSS global
+            {
+                test: /\.(css|s[ac]ss)$/,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    'css-modules-typescript-loader',
+                    {
+                        loader: 'css-loader',
+                        options: { 
+                            modules: false
+                        }
+                    },
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            // Prefer using dart-sass over node-sass
+                            implementation: require('sass'),
+                        }
+                    }
+                ],
+                exclude: /\.module\.(css|s[ac]ss)$/
             },
             // Load webmanifest
             {

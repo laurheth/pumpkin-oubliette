@@ -1,4 +1,4 @@
-import css from './Display.scss';
+import css from './Display.module.scss';
 
 /** Display parameters */
 interface DisplayParams {
@@ -215,6 +215,13 @@ class Display {
     set tileSize(newTileSize: TileSize) {
         this._tileSize = newTileSize;
         this.element.style.fontSize = newTileSize.tileHeight;
+        this.tiles.forEach(tile=>{
+            tile.tileWidth = newTileSize.tileWidth;
+            tile.tileHeight = newTileSize.tileHeight;
+        });
+
+        this.element.style.width = `calc(${this._width} * ${newTileSize.tileWidth})`;
+        this.element.style.height = `calc(${this._height} * ${newTileSize.tileHeight})`;
     }
 
     /** Get or set the display dimensions */
@@ -261,7 +268,6 @@ class Display {
         this.tiles = [];
 
         // Generate tiles
-        const length = this._height * this._width;
         for (let y=0;y<this._height;y++) {
             for (let x=0;x<this._width;x++) {
                 // Make a new tile
