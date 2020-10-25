@@ -21,7 +21,7 @@ export class Display {
     constructor(
         parameters: DisplayParams
     ) {
-        const {target, width, height, background, foreground, tileWidth, tileHeight, ...rest} = parameters;
+        const {target, width=1, height=1, background, foreground, tileWidth, tileHeight, ...rest} = parameters;
         // Set the target
         this.target = target;
 

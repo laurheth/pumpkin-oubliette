@@ -3,9 +3,9 @@ export interface DisplayParams {
     /** Target div to use as the display. */
     target: HTMLDivElement;
     /** Width in tiles of the display. */
-    width: number;
+    width?: number;
     /** Height in tiles of the display. */
-    height: number;
+    height?: number;
     /** Optional width of each tile in pixels. */
     tileWidth?: number;
     /** Optional height of each tile in pixels. */

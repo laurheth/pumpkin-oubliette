@@ -35,18 +35,7 @@ class Game {
         this.sideBar = document.querySelector('#sideBar');
 
         // Create a new display object
-        this.display = new Toolkit.Display({target: this.displayContainer, width: 20, height: 20, tileWidth:20});
-        
-        for (let i=0;i<20;i++) {
-            for (let j=0;j<20;j++) {
-                if (i===0 || j===0 || i===19 || j===19) {
-                    this.display.setTile(i,j,{content:'#'});
-                }
-                else {
-                    this.display.setTile(i,j,{content:'.'});
-                }
-            }
-        }
+        this.display = new Toolkit.Display({target: this.displayContainer, tileWidth:20});
         
         // Initialize the event manager
         this.eventManager = new Toolkit.EventManager({type:"complex"})
