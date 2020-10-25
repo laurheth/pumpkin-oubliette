@@ -1,10 +1,2 @@
-import Display from './display/Display';
-import EventManager from './event/EventManager';
-
-/** Toolkit for roguelike development */
-const Toolkit = {
-    Display: Display,
-    EventManager: EventManager,
-};
-
-export default Toolkit;
+export {Display} from './display/Display';
+export {EventManager} from './event/EventManager';

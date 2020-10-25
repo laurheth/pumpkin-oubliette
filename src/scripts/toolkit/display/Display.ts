@@ -1,10 +1,9 @@
-import { takeWhile } from 'lodash';
 import css from './Display.module.scss';
 import { DisplayParams, TileSize, Dimension, TileOptions, Position } from './DisplayInterfaces';
 import { Tile } from './Tile';
 
 /** Display class, to create and control a display */
-class Display {
+export class Display {
     private _width: number;
     private _height: number;
     private target: HTMLDivElement;

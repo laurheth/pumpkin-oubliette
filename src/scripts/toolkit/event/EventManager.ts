@@ -1,7 +1,7 @@
 import { EventManagerParams, Event, QueuedEvent } from './EventManagerInterfaces';
 
 /** Event manager, to keep track of turns */
-class EventManager {
+export class EventManager {
 
     readonly type: "simple" | "complex";
     private queue: Array<QueuedEvent>;
