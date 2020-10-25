@@ -18,6 +18,9 @@ class Game {
     /** Main event scheduler */
     eventManager: Toolkit.EventManager;
 
+    /** Random number generator */
+    random: Toolkit.Random;
+
     constructor() {
         // Select the important sections
         this.displayContainer = document.querySelector('#displayContainer');
@@ -63,9 +66,35 @@ class Game {
         this.eventManager.add({callback:()=>console.log('Kablooie!'),delay:12});
         
         for (let i=0;i<20;i++) {
-            this.eventManager.advance();
+            // this.eventManager.advance();
         }
 
+        // Test the random generator
+        this.random = new Toolkit.Random();
+        for (let i=0;i<20;i++) {
+            console.log('Random number: ', this.random.getNumber(0,10));
+        }
+
+        const test=['Object 1', 'Object 2', 'Object 3'];
+        for (let i=0;i<20;i++) {
+            console.log('Random element: ', this.random.getRandomElement(test));
+        }
+
+        let snailCount = 0;
+        let mouseCount = 0;
+        const test2 = [
+            {option: ()=>{}, weight:2},
+            {option: ()=>snailCount++, weight:1},
+            {option: ()=>mouseCount++, weight:4},
+            {option: ()=>{}, weight:3}
+        ]
+
+        for (let i=0;i<1000;i++) {
+            this.random.getWeightedElement(test2)();
+        }
+
+        console.log('Snails: ', snailCount);
+        console.log('Mice: ',mouseCount);
     }
 }
 
