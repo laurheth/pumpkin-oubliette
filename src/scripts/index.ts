@@ -24,4 +24,28 @@ for (let i=0;i<20;i++) {
 
 display.setTile(12,10,{content:`🐌`});
 
-display.centerDisplay(1,1);
+display.centerDisplay(12,10);
+
+// Test the event system a bit
+const eventManager = new Toolkit.EventManager({type:"complex"})
+
+class testActor {
+    index:number;
+    constructor(index:number) {
+        this.index=index;
+    }
+    act() {
+        console.log(`Actor ${this.index} is doing something!`);
+    }
+}
+
+const actor1 = new testActor(1);
+const actor2 = new testActor(2);
+
+eventManager.add({actor:actor1,callback:()=>actor1.act(),repeats:true,delay:3});
+eventManager.add({actor:actor2,callback:()=>actor2.act(),repeats:true,delay:9});
+eventManager.add({callback:()=>console.log('Kablooie!'),delay:12});
+
+for (let i=0;i<20;i++) {
+    eventManager.advance();
+}
