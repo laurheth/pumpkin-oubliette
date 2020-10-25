@@ -9,7 +9,7 @@ const messageContainer = document.querySelector('#messages');
 const sideBar = document.querySelector('#sideBar');
 
 // Create a new display object
-const display = new Toolkit.Display({target: displayContainer, width: 20, height: 20, tileWidth:16});
+const display = new Toolkit.Display({target: displayContainer, width: 20, height: 20, tileWidth:20});
 
 for (let i=0;i<20;i++) {
     for (let j=0;j<20;j++) {
