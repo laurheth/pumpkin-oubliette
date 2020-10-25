@@ -21,6 +21,10 @@ export class EventManager {
 
     /** Add an event to the queue */
     add(event: Event) {
+        // Assume repeating if an actor was provided
+        if (typeof event.repeats === "undefined" && event.actor) {
+            event.repeats=true;
+        }
         // Complex event queue uses delay time a bit better
         if (this.type==="complex") {
             if (!event.delay) {
@@ -56,7 +60,7 @@ export class EventManager {
     }
 
     /** Run the next event */
-    advance() {
+    async advance() {
         // Confirm if there is anything in the queue
         if (this.queue.length === 0) {
             throw new Error("Event queue is empty.");
@@ -77,7 +81,12 @@ export class EventManager {
         }
 
         // Activate the event
-        thisEvent.event.callback();
+        if (thisEvent.event.callback) {
+            await thisEvent.event.callback();
+        }
+        if (thisEvent.event.actor) {
+            await thisEvent.event.actor.act();
+        }
     }
 
     /** Remove actor from the event queue */

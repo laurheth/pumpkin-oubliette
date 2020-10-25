@@ -4,11 +4,15 @@ export interface EventManagerParams {
     cyclic?:boolean;
 }
 
+interface Actor {
+    act:()=>Promise<any>|void;
+}
+
 export interface Event {
     repeats?:boolean|number;
     delay?:number;
-    callback:()=>void;
-    actor?:object;
+    callback?:()=>Promise<any>|void;
+    actor?:Actor;
 }
 
 export interface QueuedEvent {
