@@ -86,6 +86,9 @@ export class Map {
             height:this.height
         }
 
+        // Center the view on the player
+        this.display.centerDisplay(this.player.getPosition().x, this.player.getPosition().y);
+
         // Draw each tile
         for (let x=0;x<this.width;x++) {
             for (let y=0;y<this.height;y++) {

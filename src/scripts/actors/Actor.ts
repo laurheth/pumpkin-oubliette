@@ -24,10 +24,10 @@ export class Actor {
     public title: string;
 
     /** Map the actor lives on */
-    private map: Map;
+    protected map: Map;
 
     /** Position of the actor */
-    private position: Position;
+    protected position: Position;
 
     constructor(parameters: ActorParams) {
         const {
@@ -94,6 +94,11 @@ export class Actor {
         else {
             return false;
         }
+    }
+
+    /** Get current position */
+    getPosition(): Position {
+        return this.position;
     }
 
     /** Take a step */
