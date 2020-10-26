@@ -164,13 +164,33 @@ export class Map {
                 }
             });
         })
-
-        console.log('should be 0', this.nodeDistance(this.rooms[0],this.rooms[0]));
-        console.log('should be 2?',this.nodeDistance(this.rooms[0],this.rooms[1]));
-        console.log('first to last', this.nodeDistance(this.rooms[0],this.rooms[this.rooms.length-1]));
         
         console.log('rooms', this.rooms);
         console.log('hallways', this.hallways);
+
+        // Add start and end
+        const startRoom = this.random.getWeightedElement(
+            this.rooms.map(room=>{
+                return {
+                    option: room,
+                    weight: 10-room.connections.length
+                }
+            })
+        );
+        const endRoom = this.findMostDistantRoom(startRoom);
+        
+        this.entrance = startRoom.position;
+        this.exit = endRoom.position;
+
+        this.getSquare(this.entrance.x, this.entrance.y).parameters = {
+            art:'<',
+            passable:true,
+        };
+
+        this.getSquare(this.exit.x, this.exit.y).parameters = {
+            art:'>',
+            passable:true,
+        };
     };
 
     /** What the function */
@@ -249,6 +269,21 @@ export class Map {
             }
         }
         return Infinity;
+    };
+
+    /** Get most distant node */
+    findMostDistantRoom(startRoom: Room): Room {
+        let index=-1;
+        let maxDistance=0;
+
+        this.rooms.forEach((room,i)=> {
+            const distance = this.nodeDistance(startRoom,room);
+            if (distance >= maxDistance) {
+                maxDistance = distance;
+                index=i;
+            }
+        });
+        return this.rooms[index];
     };
 
     /** Draw a hallway */
