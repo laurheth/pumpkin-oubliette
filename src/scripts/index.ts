@@ -6,6 +6,7 @@ import * as Toolkit from './toolkit/toolkit';
 // Important imports
 import { Actor } from './actors/Actor';
 import { Player } from './actors/Player';
+import { Map } from './map/Map';
 
 /** Main Game Object */
 class Game {
@@ -28,6 +29,9 @@ class Game {
     /** Player character */
     player: Player;
 
+    /** Map */
+    map: Map;
+
     constructor() {
         // Select the important sections
         this.displayContainer = document.querySelector('#displayContainer');
@@ -43,6 +47,14 @@ class Game {
         // Initialize the prng.
         this.random = new Toolkit.Random();
 
+        // Generate the map
+        this.map = new Map({
+            width: 30,
+            height: 30,
+        }, this.display, this.random);
+
+        this.map.drawMap();
+
         const actor1 = new Actor({art:'g',name:'Goblin'});
         const actor2 = new Actor({art:'g',name:'Goblin'});
         this.player = new Player();
@@ -51,11 +63,12 @@ class Game {
         this.eventManager.add({actor:actor2});
         this.eventManager.add({actor:this.player});
 
-        this.play();
+        // this.play();
     }
 
     async play() {
         for(let i=0;i<30;i++) {
+            this.map.drawMap();
             await this.eventManager.advance();
         }
     }
