@@ -1,3 +1,4 @@
+import { MapNode } from './dataStructures';
 export type generator = "json" | "default";
 export type theme = "default";
 
@@ -7,6 +8,7 @@ export interface SquareParams {
     foreground?: string;
     passable?: boolean;
     empty?:boolean;
+    location?: MapNode;
 }
 
 export interface MapParams {

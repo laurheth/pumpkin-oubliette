@@ -1,70 +1,8 @@
-import { SquareParams, MapParams, theme, generator } from './MapInterfaces';
+import { MapParams, theme, generator } from './MapInterfaces';
 import { Art, Position } from '../util/interfaces';
-import { Actor } from '../actors/Actor';
 import { Display, Random } from '../toolkit/toolkit';
-
-/** Each square in the map */
-export class Square {
-    private baseArt : Art;
-    public actor: Actor;
-    public passable: boolean;
-    public empty: boolean;
-    // items?
-    constructor(parameters: SquareParams) {
-        this.parameters = parameters;
-    }
-
-    /** Get the current art for the square */
-    get art():Art {
-        if (this.actor) {
-            return this.actor.art;
-        }
-        else {
-            return this.baseArt;
-        }
-    }
-
-    /** Set the square parameters */
-    set parameters(parameters: SquareParams) {
-        const {
-            art,
-            foreground='white',
-            background='black',
-            passable=true,
-            empty=false,
-            ...rest
-        } = parameters;
-
-        this.baseArt = {art, background, foreground};
-        this.passable = passable;
-        this.empty = empty;
-    }
-}
-
-/** Individual room */
-export class Room {
-    public connections:Array<Room>;
-    readonly position:Position;
-    public name:string;
-    public description:string;
-    public exits: {
-        north?: Room,
-        south?: Room,
-        east?: Room,
-        west?: Room
-    }
-
-    constructor(position:Position, name?:string, description?:string) {
-        if (!name) {name="Generic room";}
-        if (!description) {description="A very normal room."}
-
-        this.name=name;
-        this.description=description;
-        this.position = position;
-        this.exits = {};
-        this.connections = [];
-    }
-}
+import { Square } from './Square';
+import { Room, Hallway } from './dataStructures';
 
 /** Map class */
 export class Map {
@@ -81,6 +19,7 @@ export class Map {
     private random: Random;
 
     private rooms: Array<Room>;
+    private hallways: Array<Hallway>;
 
     constructor(parameters: MapParams, display: Display, random: Random) {
         this.display = display;
@@ -114,7 +53,7 @@ export class Map {
         for (let i=0;i<length;i++) {
             this.mapData.push(new Square({
                 art:"",
-                passable:true,
+                passable:false,
                 empty:true
             }));
         }
@@ -173,7 +112,6 @@ export class Map {
                 {art:'#',foreground:'orange',background:'brown'},
                 {art:'.',foreground:'green',background:'black'}
             )) {
-                console.log('Added!(?)');
                 currentSquares += width*height;
                 // If this isn't the first room, get the most recently added room
                 if (this.rooms.length > 1) {
@@ -186,7 +124,7 @@ export class Map {
                         let closestDistance = Infinity;
                         this.rooms.forEach((otherRoom, otherIndex) => {
                             // Not the same room, and not already connected
-                            // TODO: Add a check for direction as well
+                            // TODO: Add a check for direction as well?
                             if (thisIndex !== otherIndex && !room.connections.includes(otherRoom)) {
                                 const distance = Math.abs(room.position.x - otherRoom.position.x)**2 + Math.abs(room.position.y - otherRoom.position.y)**2;
                                 if (distance < closestDistance) {
@@ -199,7 +137,13 @@ export class Map {
                         if (index >= 0) {
                             room.connections.push(this.rooms[index]);
                             this.rooms[index].connections.push(room);
-                            // TODO: Draw a hallway. Maybe have a this.rooms equivalent? (this.hallways?)
+                            // Draw a hallway between the two rooms
+                            currentSquares += this.drawHallway(
+                                room,
+                                this.rooms[index],
+                                {art:'#',foreground:'gray',background:'#222222'},
+                                {art:'.',foreground:'orange',background:'black'},
+                            );
                         }
                     }
                 }
@@ -208,6 +152,146 @@ export class Map {
 
         console.log(this.rooms);
     };
+
+    /** Draw a hallway */
+    drawHallway(startRoom: Room, endRoom: Room, wall?:Art, floor?: Art) : number {
+        // Some defaults
+        if (!wall) {
+            wall = {
+                art:'#',
+                foreground:'white',
+                background:'gray'
+            }
+        }
+        if (!floor) {
+            floor = {
+                art:'.',
+                foreground:'gray',
+                background:'black'
+            }
+        }
+        // Start position
+        const currentPosition: Position = {...startRoom.position};
+        const endPosition: Position = {...endRoom.position};
+        // Determine current direction of travel
+        const axis = {x:0,y:0};
+        let dx = endPosition.x - currentPosition.x;
+        let dy = endPosition.y - currentPosition.y;
+
+        // Function to update axis
+        const updateAxis = () => {
+            if (Math.abs(dy) > Math.abs(dx)) {
+                axis.y = dy / Math.abs(dy);
+                axis.x = 0;
+            }
+            else {
+                axis.x = dx / Math.abs(dx);
+                axis.y = 0;
+            }
+        }
+
+        updateAxis();
+
+        // Positions to add to walls or floors
+        const floors: Array<Position> = [];
+        const walls: { [key: string]: Position } = {};
+
+        // There will be a hallway object to contain this all, but we may not need a new one
+        let hallway:Hallway;
+
+        // Walk from current position to the new position
+        while(currentPosition.x !== endPosition.x || currentPosition.y !== endPosition.y) {
+            dx = endPosition.x - currentPosition.x;
+            dy = endPosition.y - currentPosition.y;
+            // Update step direction
+            if (dx === 0 || dy === 0) {
+                updateAxis();
+            }
+            // Step
+            currentPosition.x += axis.x;
+            currentPosition.y += axis.y;
+            // Plan walls, and the floor
+            for (let i=-1;i<2;i++) {
+                for (let j=-1;j<2;j++) {
+                    const position:Position = {
+                        x: currentPosition.x + i,
+                        y: currentPosition.y + j
+                    }
+                    walls[`${position.x},${position.y}`] = position;
+                    if (i===0 && j===0) {
+                        floors.push(position);
+                        const square = this.getSquare(position.x,position.y);
+                        if (square) {
+                            const location = square.location;
+                            if (square.passable && location instanceof Hallway) {
+                                hallway = location;
+                                // If this hallway is connected to our destination, we are done! Add an intersection
+                                if (hallway.connections.includes(endRoom)) {
+                                    endPosition.x=currentPosition.x;
+                                    endPosition.y=currentPosition.y;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // No pre-existing hallway found, so declare a new one
+        if (!hallway) {
+            hallway = new Hallway();
+        }
+
+        // Figure out hallway connections
+        if (!hallway.connections.includes(startRoom)) {
+            hallway.connections.push(startRoom);
+        }
+        if (!hallway.connections.includes(endRoom)) {
+            hallway.connections.push(endRoom);
+        }
+
+        // Draw the actual hallway
+        // Start with the walls
+        Object.values(walls).forEach(wallPosition=>{
+            const square = this.getSquare(wallPosition.x,wallPosition.y);
+            if (!square.passable && square.empty) {
+                square.parameters = {
+                    art: wall.art,
+                    foreground: wall.foreground,
+                    background: wall.background,
+                    passable: false,
+                    location: (square.location) ? square.location : hallway,
+                };
+            }
+        });
+
+        // Now, carve out the hallways
+        const floorsAdded: Array<Position> = [];
+        floors.forEach(floorPosition=>{
+            const square = this.getSquare(floorPosition.x,floorPosition.y);
+            if (!square.passable) {
+                floorsAdded.push(floorPosition);
+                square.parameters = {
+                    art: floor.art,
+                    foreground: floor.foreground,
+                    background: floor.background,
+                    passable: true,
+                    location: (square.location) ? square.location : hallway,
+                };
+            }
+        });
+
+        // Add the additional squares to the hallway definitions
+        if (hallway && floorsAdded.length > 0) {
+            hallway.addSquares(floorsAdded);
+        }
+
+        console.log('hallway', hallway);
+        console.log('floorsAdded', floorsAdded);
+
+        // Return number of squares
+        return 3*floorsAdded.length;
+    }
 
     /** Build a room */
     addRoom(position: Position, width: number, height: number, wall?: Art, floor?:Art):boolean {
@@ -255,6 +339,7 @@ export class Map {
                         foreground: wall.foreground,
                         background: wall.background,
                         passable: false,
+                        location: room,
                     }
                 }
                 else {
@@ -263,6 +348,7 @@ export class Map {
                         foreground: floor.foreground,
                         background: floor.background,
                         passable: true,
+                        location: room,
                     }
                 }
             }
