@@ -1,5 +1,6 @@
 import { ActorParams, Pronouns, attitude } from './ActorInterfaces';
-import { Art } from '../util/interfaces';
+import { Art, Position } from '../util/interfaces';
+import { Map } from '../map/Map';
 
 /** Monsters, the player, etc. Things that move and do stuff */
 export class Actor {
@@ -21,6 +22,12 @@ export class Actor {
 
     /** Fancy title of the actor */
     public title: string;
+
+    /** Map the actor lives on */
+    private map: Map;
+
+    /** Position of the actor */
+    private position: Position;
 
     constructor(parameters: ActorParams) {
         const {
@@ -65,5 +72,36 @@ export class Actor {
     /** It is this actors turn. Do something! */
     act() {
         console.log(`${this.name} acts!`);
+    }
+
+    /** Attach to a position, and a specific map if not defined otherwise */
+    setPosition(position: Position, map?:Map): boolean {
+        if (!this.map && !map) {
+            throw new Error("Actor is not on the map!");
+        }
+
+        if (map) {
+            this.map = map;
+        }
+
+        // Get the square to move the actor to
+        const square = this.map.getSquare(position.x, position.y);
+        if (square && square.passable && !square.actor) {
+            square.actor = this;
+            this.position = position;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /** Take a step */
+    step(dx: number, dy: number): boolean {
+        const newPosition = {
+            x:this.position.x+dx,
+            y:this.position.y+dy
+        }
+        return this.setPosition(newPosition);
     }
 };

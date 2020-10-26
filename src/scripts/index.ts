@@ -47,20 +47,17 @@ class Game {
         // Initialize the prng.
         this.random = new Toolkit.Random();
 
+        // Create the player
+        this.player = new Player();
+
         // Generate the map
         this.map = new Map({
             width: 30,
             height: 30,
-        }, this.display, this.random);
+        }, this.display, this.random, this.player);
 
         this.map.drawMap();
 
-        const actor1 = new Actor({art:'g',name:'Goblin'});
-        const actor2 = new Actor({art:'g',name:'Goblin'});
-        this.player = new Player();
-
-        this.eventManager.add({actor:actor1});
-        this.eventManager.add({actor:actor2});
         this.eventManager.add({actor:this.player});
 
         // this.play();

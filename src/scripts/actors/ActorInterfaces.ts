@@ -1,3 +1,6 @@
+import { Map } from '../map/Map';
+import { Position } from '../util/interfaces';
+
 /** Attitude */
 export type attitude = "friendly"|"hostile"|"neutral";
 
@@ -18,6 +21,8 @@ export interface ActorParams {
     /** Attitude */
     attitude?: attitude;
     behaviours?: Array<string>;
+    map?: Map;
+    position?: Position;
 }
 
 /** Pronouns */

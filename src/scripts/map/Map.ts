@@ -3,6 +3,7 @@ import { Art, Position } from '../util/interfaces';
 import { Display, Random } from '../toolkit/toolkit';
 import { Square } from './Square';
 import { Room, Hallway, MapNode } from './dataStructures';
+import { Player } from '../actors/Player';
 
 /** Map class */
 export class Map {
@@ -21,9 +22,15 @@ export class Map {
     private rooms: Array<Room>;
     private hallways: Array<Hallway>;
 
-    constructor(parameters: MapParams, display: Display, random: Random) {
+    private player: Player;
+
+    constructor(parameters: MapParams, display: Display, random: Random, player: Player) {
+        // Useful things from elsewhere in the app
         this.display = display;
         this.random = random;
+        this.player = player;
+
+        // Parameters and defaults
         const {width=30, height=30, source, level=1, theme="default", ...rest} = parameters;
         let generator = (rest.generator) ? rest.generator : "default";
 
@@ -181,6 +188,8 @@ export class Map {
         
         this.entrance = startRoom.position;
         this.exit = endRoom.position;
+
+        this.player.setPosition(this.entrance, this);
 
         this.getSquare(this.entrance.x, this.entrance.y).parameters = {
             art:'<',
