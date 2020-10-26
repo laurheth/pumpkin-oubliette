@@ -2,7 +2,7 @@ import { MapParams, theme, generator } from './MapInterfaces';
 import { Art, Position } from '../util/interfaces';
 import { Display, Random } from '../toolkit/toolkit';
 import { Square } from './Square';
-import { Room, Hallway } from './dataStructures';
+import { Room, Hallway, MapNode } from './dataStructures';
 
 /** Map class */
 export class Map {
@@ -39,6 +39,7 @@ export class Map {
         this.allocateMap();
 
         this.rooms = [];
+        this.hallways = [];
 
         // Generate
         if (generator === "default") {
@@ -124,7 +125,6 @@ export class Map {
                         let closestDistance = Infinity;
                         this.rooms.forEach((otherRoom, otherIndex) => {
                             // Not the same room, and not already connected
-                            // TODO: Add a check for direction as well?
                             if (thisIndex !== otherIndex && !room.connections.includes(otherRoom)) {
                                 const distance = Math.abs(room.position.x - otherRoom.position.x)**2 + Math.abs(room.position.y - otherRoom.position.y)**2;
                                 if (distance < closestDistance) {
@@ -135,8 +135,8 @@ export class Map {
                         });
                         // Match found! Add a connection
                         if (index >= 0) {
-                            room.connections.push(this.rooms[index]);
-                            this.rooms[index].connections.push(room);
+                            // room.connections.push(this.rooms[index]);
+                            // this.rooms[index].connections.push(room);
                             // Draw a hallway between the two rooms
                             currentSquares += this.drawHallway(
                                 room,
@@ -150,8 +150,77 @@ export class Map {
             }
         }
 
-        console.log(this.rooms);
+        // Untangle the mass of rooms + hallways, to figure out what's actually connected to what
+        // Purge each rooms connections list
+        this.rooms.forEach(room=>{
+            room.connections = [];
+        });
+
+        // Every room connected to a hallway is connected to that hallway
+        this.hallways.forEach(hallway=>{
+            hallway.connections.forEach(room=>{
+                if (!room.connections.includes(hallway)) {
+                    room.connections.push(hallway);
+                }
+            });
+        })
+
+
+        // this.whatTheFuck();
+        // this.connectivityTest();
+        
+        console.log('rooms', this.rooms);
+        console.log('hallways', this.hallways);
     };
+
+    /** What the function */
+    whatTheFuck() {
+        this.mapData.forEach(square=>{
+            if (this.hallways.indexOf(square.location as Hallway) >= 0) {
+                square.parameters = {art:(this.hallways.indexOf(square.location as Hallway)).toString()}
+            }
+            // if (square.passable) {
+            //     square.parameters = {art:'@'}
+            // }
+        })
+    }
+
+    /** Connectivity test */
+    connectivityTest() {
+        // Quick test for connectivity
+        const nodes : Array<MapNode> = [];
+        const testMaxIterations=10
+        let iterations=0;
+        let added=true;
+        nodes.push(this.rooms[0]);
+        const position = this.rooms[0].position;
+        this.getSquare(position.x,position.y).parameters = {
+            art: (1).toString()
+        }
+        while(added && iterations < testMaxIterations) {
+            iterations++;
+            added=false;
+            const newNodes: Array<MapNode> = [];
+            nodes.forEach(node=>{
+                node.connections.forEach(otherNode=>{
+                    if (!nodes.includes(otherNode) && !newNodes.includes(otherNode)) {
+                        newNodes.push(otherNode);
+                        added=true;
+                    }
+                });
+            });
+            newNodes.forEach(node=>{
+                nodes.push(node)
+                const position = node.position;
+                if (this.getSquare(position.x,position.y)) {
+                    this.getSquare(position.x,position.y).parameters = {
+                        art: (iterations+1).toString()
+                    }
+                }
+            });
+        };
+        console.log('test connections:', iterations, nodes);
+    }
 
     /** Draw a hallway */
     drawHallway(startRoom: Room, endRoom: Room, wall?:Art, floor?: Art) : number {
@@ -218,19 +287,30 @@ export class Map {
                         y: currentPosition.y + j
                     }
                     walls[`${position.x},${position.y}`] = position;
+                    const square = this.getSquare(position.x,position.y);
+                    if (square) {
+                        const location = square.location;
+                        // Merge the hallways!
+                        if ((i===0 || j===0) && square.passable && location && location instanceof Hallway) {
+                            // This hallway has already been merged with another! Propogate backwards.
+                            if (hallway && hallway !== location)  {
+                                this.mergeHallways(location,hallway);
+                            }
+                            hallway = location;
+                            // If this hallway is connected to our destination, we are done! Add an intersection
+                            if (location.connections.includes(endRoom)) {
+                                endPosition.x=currentPosition.x;
+                                endPosition.y=currentPosition.y;
+                            }
+                        }
+                    }
                     if (i===0 && j===0) {
                         floors.push(position);
-                        const square = this.getSquare(position.x,position.y);
-                        if (square) {
-                            const location = square.location;
-                            if (square.passable && location instanceof Hallway) {
-                                hallway = location;
-                                // If this hallway is connected to our destination, we are done! Add an intersection
-                                if (hallway.connections.includes(endRoom)) {
-                                    endPosition.x=currentPosition.x;
-                                    endPosition.y=currentPosition.y;
-                                }
-                            }
+                        // If hallway enters a room, end there
+                        if (square && square.location instanceof Room && (square.location !== startRoom && square.location !== endRoom)) {
+                            endPosition.x=currentPosition.x;
+                            endPosition.y=currentPosition.y;
+                            endRoom = square.location;
                         }
                     }
                 }
@@ -240,7 +320,10 @@ export class Map {
         // No pre-existing hallway found, so declare a new one
         if (!hallway) {
             hallway = new Hallway();
+            this.hallways.push(hallway);
         }
+        if (!startRoom.connections.includes(endRoom)) {startRoom.connections.push(endRoom);}
+        if (!endRoom.connections.includes(startRoom)) {endRoom.connections.push(startRoom);}
 
         // Figure out hallway connections
         if (!hallway.connections.includes(startRoom)) {
@@ -252,15 +335,17 @@ export class Map {
 
         // Draw the actual hallway
         // Start with the walls
+        let squaresAdded=0;
         Object.values(walls).forEach(wallPosition=>{
             const square = this.getSquare(wallPosition.x,wallPosition.y);
             if (!square.passable && square.empty) {
+                squaresAdded++;
                 square.parameters = {
                     art: wall.art,
                     foreground: wall.foreground,
                     background: wall.background,
                     passable: false,
-                    location: (square.location) ? square.location : hallway,
+                    location: hallway,
                 };
             }
         });
@@ -276,7 +361,7 @@ export class Map {
                     foreground: floor.foreground,
                     background: floor.background,
                     passable: true,
-                    location: (square.location) ? square.location : hallway,
+                    location: hallway,
                 };
             }
         });
@@ -286,11 +371,33 @@ export class Map {
             hallway.addSquares(floorsAdded);
         }
 
-        console.log('hallway', hallway);
-        console.log('floorsAdded', floorsAdded);
+        // Return number of squares added
+        return squaresAdded;
+    }
 
-        // Return number of squares
-        return 3*floorsAdded.length;
+    /** Merge two hallways */
+    mergeHallways(main: Hallway, other: Hallway) {
+        // Update squares
+        other.squarePositions.forEach(position=>{
+            for (let i=-1;i<2;i++) {
+                for (let j=-1;j<2;j++) {
+                    const square = this.getSquare(position.x+i,position.y+j);
+                    if (square.location === other) {
+                        square.location = main;
+                    }
+                }
+            }
+        })
+        // Combine square lists
+        main.addSquares(other.squarePositions);
+        // Combine connections
+        other.connections.forEach(connection=>{
+            if (!main.connections.includes(connection)) {
+                main.connections.push(connection);
+            }
+        });
+        // Remove other from the list
+        this.hallways.splice(this.hallways.indexOf(other),1);
     }
 
     /** Build a room */

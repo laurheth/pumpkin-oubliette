@@ -19,18 +19,10 @@ export class MapNode {
 
 /** Individual room */
 export class Room extends MapNode {
-    public exits: {
-        north?: Room,
-        south?: Room,
-        east?: Room,
-        west?: Room
-    }
-
     constructor(position:Position, name?:string, description?:string) {
         if (!name) {name="Generic room";}
         if (!description) {description="A very normal room."}
         super(position, name, description);
-        this.exits = {};
     }
 }
 
@@ -38,7 +30,7 @@ export class Room extends MapNode {
 export class Hallway extends MapNode {
 
     /** Array of positions for each square */
-    private squarePositions: Array<Position>;
+    public squarePositions: Array<Position>;
 
     constructor(name?:string, description?:string) {
         if (!name) {name="Generic hallway";}
@@ -77,7 +69,7 @@ export class Hallway extends MapNode {
         let index=-1;
         let minDistance=Infinity;
         positions.forEach((position,i)=>{
-            const distance = Math.abs(meanPosition.x - this.position.x)**2 + Math.abs(meanPosition.y - this.position.y)**2;
+            const distance = Math.abs(meanPosition.x - position.x)**2 + Math.abs(meanPosition.y - position.y)**2;
             if (distance < minDistance) {
                 minDistance = distance;
                 index=i;
