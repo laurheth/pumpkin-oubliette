@@ -9,17 +9,25 @@ interface FormattedMessage {
     maintext: string;
 }
 
+interface PartialMessage {
+    importance?: number;
+    message: string;
+}
+
 /** Class to handle sending messages and displaying action options to the user */
 export class Messenger {
 
     /** The element to print messages to */
     private element : HTMLDivElement;
 
-    private eventListeners : Array<HTMLElement>;
+    /** Some logic for generating messages from a combination of sources */
+    private partialMessages: Array<PartialMessage>;
+    private actions: Array<Action>;
 
     constructor(element:HTMLDivElement) {
         this.element = element;
-        this.eventListeners = [];
+        this.partialMessages = [];
+        this.actions = [];
         this.clear();
     }
 
@@ -73,5 +81,39 @@ export class Messenger {
         while(this.element.lastElementChild) {
             this.element.removeChild(this.element.lastElementChild);
         }
+    }
+
+    /** Add a partial message */
+    addMessage(partial: PartialMessage) {
+        if (!partial.importance) {
+            partial.importance = 0;
+        }
+
+        this.partialMessages.push(partial);
+    }
+
+    /** Add a possible action */
+    addAction(action:Action) {
+        this.actions.push(action);
+    }
+
+    /** Generate messages based on the partials given */
+    generate() {
+        // Sort by priority.
+        this.partialMessages.sort((a,b)=>b.importance - a.importance);
+        let message = "";
+        for (let i=0;i<this.partialMessages.length;i++) {
+            if (message.length > 100 && this.partialMessages[i].importance <= 1) {
+                break;
+            }
+            message += `${this.partialMessages[i]} `;
+        }
+
+        // Display the combined results.
+        this.message(message,this.actions);
+
+        // Purge the old list
+        this.partialMessages=[];
+        this.actions=[];
     }
 }
