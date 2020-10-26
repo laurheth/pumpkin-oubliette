@@ -165,9 +165,9 @@ export class Map {
             });
         })
 
-
-        // this.whatTheFuck();
-        // this.connectivityTest();
+        console.log('should be 0', this.nodeDistance(this.rooms[0],this.rooms[0]));
+        console.log('should be 2?',this.nodeDistance(this.rooms[0],this.rooms[1]));
+        console.log('first to last', this.nodeDistance(this.rooms[0],this.rooms[this.rooms.length-1]));
         
         console.log('rooms', this.rooms);
         console.log('hallways', this.hallways);
@@ -221,6 +221,35 @@ export class Map {
         };
         console.log('test connections:', iterations, nodes);
     }
+
+    /** Get node distance */
+    nodeDistance(startNode: MapNode, endNode: MapNode): number {
+        if (startNode === endNode) {
+            return 0;
+        }
+        let steps=0;
+        const nodes: Array<MapNode> = [];
+        nodes.push(startNode);
+        const limit = this.rooms.length + this.hallways.length;
+        while (steps <= limit) {
+            steps++;
+            const newNodes: Array<MapNode> = [];
+            nodes.forEach(node=>{
+                node.connections.forEach(otherNode=>{
+                    if (!nodes.includes(otherNode) && !newNodes.includes(otherNode)) {
+                        newNodes.push(otherNode);
+                    }
+                });
+            });
+            for (const node of newNodes) {
+                if (node === endNode) {
+                    return steps;
+                }
+                nodes.push(node)
+            }
+        }
+        return Infinity;
+    };
 
     /** Draw a hallway */
     drawHallway(startRoom: Room, endRoom: Room, wall?:Art, floor?: Art) : number {
