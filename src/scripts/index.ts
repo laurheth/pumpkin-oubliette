@@ -7,6 +7,7 @@ import * as Toolkit from './toolkit/toolkit';
 import { Actor } from './actors/Actor';
 import { Player } from './actors/Player';
 import { Map } from './map/Map';
+import { Messenger } from './messages/Messenger';
 
 /** Main Game Object */
 class Game {
@@ -32,6 +33,9 @@ class Game {
     /** Map */
     map: Map;
 
+    /** Messenger */
+    messenger: Messenger;
+
     constructor() {
         // Select the important sections
         this.displayContainer = document.querySelector('#displayContainer');
@@ -46,6 +50,9 @@ class Game {
 
         // Initialize the prng.
         this.random = new Toolkit.Random();
+
+        // Initialize the messenger
+        this.messenger = new Messenger(this.messageContainer);
 
         // Create the player
         this.player = new Player();
