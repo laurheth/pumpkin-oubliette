@@ -4,6 +4,7 @@ import { Display, Random } from '../toolkit/toolkit';
 import { Square } from './Square';
 import { Room, Hallway, MapNode } from './dataStructures';
 import { Player } from '../actors/Player';
+import { Messenger } from '../messages/Messenger';
 
 import { PathFinder, FOV } from '../toolkit/toolkit';
 
@@ -30,12 +31,14 @@ export class Map {
 
     private fov: FOV;
 
-    constructor(parameters: MapParams, display: Display, random: Random, player: Player) {
+    private messenger: Messenger;
+
+    constructor(parameters: MapParams, display: Display, random: Random, player: Player, messenger: Messenger) {
         // Useful things from elsewhere in the app
         this.display = display;
         this.random = random;
         this.player = player;
-
+        this.messenger = messenger;
         
         // Parameters and defaults
         const {width=30, height=30, source, level=1, theme="default", ...rest} = parameters;
@@ -134,6 +137,16 @@ export class Map {
                     background:art.background
                 });
             }
+        }
+    }
+
+    /** Get travel options */
+    travelOptions(node:MapNode, position:Position) {
+        // Current node is a room
+        if (node instanceof Room) {
+            node.connections.forEach(otherNode=>{
+
+            });
         }
     }
 
@@ -237,6 +250,8 @@ export class Map {
             art:'>',
             passable:true,
         };
+
+        this.postProcessing();
     };
 
     /** What the function */
@@ -384,6 +399,13 @@ export class Map {
             dy = endPosition.y - currentPosition.y;
             // Update step direction
             if (dx === 0 || dy === 0) {
+                updateAxis();
+            }
+            // Determine if we're running into a weird corner
+            const square1 = this.getSquare(currentPosition.x+axis.x,currentPosition.y+axis.y);
+            const square2 = this.getSquare(currentPosition.x+2*axis.x,currentPosition.y+2*axis.y);
+            if (!square1.passable && square1.location && !square2.passable && square2.location) {
+                // Try some evasive maneuvers
                 updateAxis();
             }
             // Step
@@ -536,8 +558,8 @@ export class Map {
         };
 
         // First, determine if the room would even fit
-        for (let i=boundaries.left; i<=boundaries.right; i++) {
-            for (let j=boundaries.top; j<=boundaries.bottom; j++) {
+        for (let i=boundaries.left-1; i<=boundaries.right+1; i++) {
+            for (let j=boundaries.top-1; j<=boundaries.bottom+1; j++) {
                 if (!this.getSquare(i,j) || !this.getSquare(i,j).empty) {
                     return false;
                 }
@@ -546,6 +568,7 @@ export class Map {
 
         // Create a room object to go with this
         const room = new Room(position);
+        room.boundaries = boundaries;
 
         // If it does, lets go ahead!
         for (let i=boundaries.left; i<=boundaries.right; i++) {
@@ -575,6 +598,55 @@ export class Map {
         this.rooms.push(room);
 
         return true;
+    }
+
+    /** Post processing step, to add doors, etc */
+    postProcessing() {
+        for (let x=1;x<this.width-1;x++) {
+            for (let y=1;y<this.height-1;y++) {
+                const mainSquare = this.getSquare(x,y);
+                let roomTiles = {
+                    passable:0,
+                    unPassable:0
+                }
+                let hallTiles = {
+                    passable:0,
+                    unPassable:0
+                }
+
+                for (let i=-1;i<2;i++) {
+                    for (let j=-1;j<2;j++) {
+                        if (i!==0 && j!== 0) {continue;}
+                        const square = this.getSquare(x+i,y+j);
+                        if (square.location && square.location instanceof Hallway) {
+                            if (square.passable) {
+                                hallTiles.passable++;
+                            }
+                            else {
+                                hallTiles.unPassable++;
+                            }
+                        }
+                        else if (square.location && square.location instanceof Room) {
+                            if (square.passable) {
+                                roomTiles.passable++;
+                            }
+                            else {
+                                roomTiles.unPassable++;
+                            }
+                        }
+                    }
+                }
+                if (mainSquare.location && mainSquare.location instanceof Hallway) {
+                    // Door
+                    if (roomTiles.passable===1 && roomTiles.unPassable===2 && hallTiles.passable===2) {
+                        mainSquare.parameters={art:'+',passable:true,location:mainSquare.location};
+                    }
+                    else if (hallTiles.passable > 3 && roomTiles.passable===0 && roomTiles.unPassable===0) {
+                        mainSquare.location.intersections.push({x:x,y:y});
+                    }
+                }
+            }
+        }
     }
 
     getRandomRoom():Position {

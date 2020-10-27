@@ -61,7 +61,7 @@ class Game {
         this.map = new Map({
             width: 60,
             height: 60,
-        }, this.display, this.random, this.player);
+        }, this.display, this.random, this.player,this.messenger);
 
         this.map.drawMap();
 

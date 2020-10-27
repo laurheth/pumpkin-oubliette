@@ -1,5 +1,12 @@
 import { Position } from '../util/interfaces';
 
+interface Boundaries {
+    left: number;
+    right: number;
+    top: number;
+    bottom: number;
+}
+
 /** Node on the map */
 export class MapNode {
     public connections:Array<MapNode>;
@@ -19,6 +26,7 @@ export class MapNode {
 
 /** Individual room */
 export class Room extends MapNode {
+    public boundaries: Boundaries;
     constructor(position:Position, name?:string, description?:string) {
         if (!name) {name="Generic room";}
         if (!description) {description="A very normal room."}
@@ -31,6 +39,7 @@ export class Hallway extends MapNode {
 
     /** Array of positions for each square */
     public squarePositions: Array<Position>;
+    public intersections: Array<Position>;
 
     constructor(name?:string, description?:string) {
         if (!name) {name="Generic hallway";}
@@ -39,6 +48,7 @@ export class Hallway extends MapNode {
         const position = {x:-1,y:-1};
         super(position, name, description);
         this.squarePositions=[];
+        this.intersections=[];
     }
 
     /** Add square positions */
