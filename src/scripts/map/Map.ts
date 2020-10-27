@@ -5,7 +5,7 @@ import { Square } from './Square';
 import { Room, Hallway, MapNode } from './dataStructures';
 import { Player } from '../actors/Player';
 
-import { PathFinder } from '../toolkit/toolkit';
+import { PathFinder, FOV } from '../toolkit/toolkit';
 
 /** Map class */
 export class Map {
@@ -28,6 +28,8 @@ export class Map {
 
     readonly pathFinder: PathFinder;
 
+    private fov: FOV;
+
     constructor(parameters: MapParams, display: Display, random: Random, player: Player) {
         // Useful things from elsewhere in the app
         this.display = display;
@@ -47,6 +49,13 @@ export class Map {
             },
             maxIterations: width*height,
         });
+
+        // Field of view
+        this.fov = new FOV((position:Array<number>)=>{
+            const square = this.getSquare(position[0],position[1]);
+            if (square) {square.visible=true;}
+            return square && square.passable;
+        },8)
 
         // Check if a source was provided. If not, generator should be set to default
         // TODO: also check if source even exists and is valid
@@ -102,6 +111,9 @@ export class Map {
 
         // Center the view on the player
         this.display.centerDisplay(this.player.getPosition().x, this.player.getPosition().y);
+
+        // Do FOV
+        this.fov.look([this.player.getPosition().x, this.player.getPosition().y]);
 
         // Draw each tile
         for (let x=0;x<this.width;x++) {
