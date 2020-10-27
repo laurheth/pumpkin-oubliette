@@ -59,8 +59,8 @@ class Game {
 
         // Generate the map
         this.map = new Map({
-            width: 30,
-            height: 30,
+            width: 60,
+            height: 60,
         }, this.display, this.random, this.player);
 
         this.map.drawMap();
@@ -77,8 +77,7 @@ class Game {
     }
 
     async play() {
-        for(let i=0;i<30;i++) {
-            this.map.drawMap();
+        while (1===1) {
             await this.eventManager.advance();
         }
     }

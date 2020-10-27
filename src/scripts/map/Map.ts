@@ -5,6 +5,8 @@ import { Square } from './Square';
 import { Room, Hallway, MapNode } from './dataStructures';
 import { Player } from '../actors/Player';
 
+import { PathFinder } from '../toolkit/toolkit';
+
 /** Map class */
 export class Map {
     /** Object containing the map data */
@@ -24,11 +26,19 @@ export class Map {
 
     private player: Player;
 
+    readonly pathFinder: PathFinder;
+
     constructor(parameters: MapParams, display: Display, random: Random, player: Player) {
         // Useful things from elsewhere in the app
         this.display = display;
         this.random = random;
         this.player = player;
+
+        // Boot up the pathfinder
+        this.pathFinder = new PathFinder((pos:Array<number>)=>{
+            const square = this.getSquare(pos[0],pos[1]);
+            return square && square.passable;
+        });
 
         // Parameters and defaults
         const {width=30, height=30, source, level=1, theme="default", ...rest} = parameters;
@@ -193,7 +203,7 @@ export class Map {
         this.exit = endRoom.position;
 
         this.player.setPosition(this.entrance, this);
-
+        
         this.getSquare(this.entrance.x, this.entrance.y).parameters = {
             art:'<',
             passable:true,
@@ -541,5 +551,10 @@ export class Map {
         this.rooms.push(room);
 
         return true;
+    }
+
+    getRandomRoom():Position {
+        const room = this.random.getRandomElement(this.rooms) as Room;
+        return room.position;
     }
 }

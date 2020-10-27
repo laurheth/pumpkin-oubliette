@@ -40,3 +40,15 @@ export interface Pronouns {
     /** his, her, their, zer, its */
     possessive: string;
 }
+
+/** Current Goal
+ *  This describes a target position for the actor to go to, and upon reaching it, run the given action
+*/
+export interface Goal {
+    /** Target position */
+    target: Position;
+    /** Distance at which to execute */
+    distance?:number;
+    /** Action to perform */
+    action?:()=>void;
+}
