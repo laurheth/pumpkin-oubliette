@@ -82,7 +82,7 @@ export class FOV {
     angularSize(startPosition: Array<number>, endPosition: Array<number>) {
         const distance = this.distance(startPosition,endPosition);
         return 360*Math.atan(1/(distance))/Math.PI;
-    }
+    };
 
     /** Get distance */
     distance(startPosition: Array<number>, endPosition: Array<number>) {
@@ -91,9 +91,9 @@ export class FOV {
 
     /** Check if in shadows */
     isInShadows(angle:number, shadows:Array<Shadow>): boolean {
-        const negAngle = angle - 360;
+        const negAngle = (angle < 0) ? angle + 360 : angle - 360;
         for (const shadow of shadows) {
-            if ((angle < shadow.endAngle && angle > shadow.startAngle) || (negAngle < shadow.endAngle && negAngle > shadow.startAngle)) {
+            if ((angle <= shadow.endAngle && angle >= shadow.startAngle) || (negAngle <= shadow.endAngle && negAngle >= shadow.startAngle)) {
                 return true;
             }
         }

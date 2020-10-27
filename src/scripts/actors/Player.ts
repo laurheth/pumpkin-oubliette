@@ -45,7 +45,7 @@ export class Player extends Actor {
         // Framerate while executing an actions
         else {
             await new Promise(resolve=>{
-                setTimeout(()=>resolve(),200);
+                setTimeout(()=>resolve(),20);
             });
         }
         super.act();

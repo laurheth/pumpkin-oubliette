@@ -112,6 +112,14 @@ export class Map {
         // Center the view on the player
         this.display.centerDisplay(this.player.getPosition().x, this.player.getPosition().y);
 
+        // Unsee the entire map
+        for (let x=0;x<this.width;x++) {
+            for (let y=0;y<this.height;y++) {
+                const square = this.getSquare(x,y);
+                if (square) {square.visible=false;}
+            }
+        }
+
         // Do FOV
         this.fov.look([this.player.getPosition().x, this.player.getPosition().y]);
 
