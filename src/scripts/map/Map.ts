@@ -34,15 +34,19 @@ export class Map {
         this.random = random;
         this.player = player;
 
-        // Boot up the pathfinder
-        this.pathFinder = new PathFinder((pos:Array<number>)=>{
-            const square = this.getSquare(pos[0],pos[1]);
-            return square && square.passable;
-        });
-
+        
         // Parameters and defaults
         const {width=30, height=30, source, level=1, theme="default", ...rest} = parameters;
         let generator = (rest.generator) ? rest.generator : "default";
+        
+        // Boot up the pathfinder
+        this.pathFinder = new PathFinder({
+            canPass: (pos:Array<number>)=>{
+                const square = this.getSquare(pos[0],pos[1]);
+                return square && square.passable;
+            },
+            maxIterations: width*height
+        });
 
         // Check if a source was provided. If not, generator should be set to default
         // TODO: also check if source even exists and is valid

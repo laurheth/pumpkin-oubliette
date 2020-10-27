@@ -10,12 +10,20 @@ interface location {
     previousLocation: location|null;
 }
 
+interface PathFinderParams {
+    canPass: canPass;
+    metric?: metric;
+    maxIterations?:number;
+}
+
 /** Pathfinder to determine how to travel from one point to another */
 export class PathFinder {
     private canPass:canPass;
     private metric:metric;
+    private maxIterations:number;
 
-    constructor(canPass:canPass, metric?:metric) {
+    constructor(parameters:PathFinderParams) {
+        let { canPass, metric, maxIterations, ...rest } = parameters;
         this.canPass = canPass;
         if (!metric) {
             // Default metric is Manhattan metric, if none provided
@@ -23,6 +31,7 @@ export class PathFinder {
                 return Math.abs(position2[1] - position1[1]) + Math.abs(position2[0] - position1[0]);
             };
         }
+        this.maxIterations = maxIterations;
         this.metric = metric;
     }
 
@@ -31,7 +40,7 @@ export class PathFinder {
         const route: Array<Array<number>> = [];
 
         // Limit the loop so it doesn't break things
-        const maxIterations = 40 * this.metric(startPosition, endPosition);
+        const maxIterations = (this.maxIterations) ? this.maxIterations : 40 * this.metric(startPosition, endPosition);
         let iterations=0;
 
         // Initialize the list, and add the start to it
