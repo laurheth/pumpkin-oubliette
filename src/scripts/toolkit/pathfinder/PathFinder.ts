@@ -2,6 +2,8 @@
 type canPass = (position:Array<number>)=>boolean;
 /** Function to guess at approximate distance to target */
 type metric = (position1:Array<number>, position2:Array<number>)=>number;
+/** Function to get the weight of each step i.e. if some things are harder to move through */
+type weight = (position:Array<number>)=>number;
 
 interface location {
     position: Array<number>;
@@ -14,6 +16,7 @@ interface PathFinderParams {
     canPass: canPass;
     metric?: metric;
     maxIterations?:number;
+    weight?:weight;
 }
 
 /** Pathfinder to determine how to travel from one point to another */
@@ -21,9 +24,10 @@ export class PathFinder {
     private canPass:canPass;
     private metric:metric;
     private maxIterations:number;
+    private weight:weight;
 
     constructor(parameters:PathFinderParams) {
-        let { canPass, metric, maxIterations, ...rest } = parameters;
+        let { canPass, metric, maxIterations, weight, ...rest } = parameters;
         this.canPass = canPass;
         if (!metric) {
             // Default metric is Manhattan metric, if none provided
@@ -31,8 +35,13 @@ export class PathFinder {
                 return Math.abs(position2[1] - position1[1]) + Math.abs(position2[0] - position1[0]);
             };
         }
+        if (!weight) {
+            // Default to everything being length of 1
+            weight = (position:Array<number>)=>1;
+        }
         this.maxIterations = maxIterations;
         this.metric = metric;
+        this.weight = weight;
     }
 
     /** Find route from startPosition to endPosition, via A* */
@@ -56,7 +65,7 @@ export class PathFinder {
         const openList:Array<location> = [];
 
         // Handle diagonals
-        const stepSize = [0,1,1.2];
+        const stepSizeArr = [0,1,1.2];
 
         // Find a path
         while(
@@ -70,6 +79,8 @@ export class PathFinder {
                 for (let i=-1;i<2;i++) {
                     for (let j=-1;j<2;j++) {
                         const newPosition = [location.position[0]+i, location.position[1]+j];
+                        // Determine the cost / size of step into the square
+                        const stepSize = stepSizeArr[Math.abs(i)+Math.abs(j)] * this.weight(newPosition);
                         if (!this.canPass(newPosition)) {
                             continue;
                         }
@@ -79,18 +90,19 @@ export class PathFinder {
                         if (!inClosedListAlready && !inOpenListAlready) {
                             openList.push({
                                 position: newPosition,
-                                steps: location.steps+stepSize[Math.abs(i)+Math.abs(j)],
+                                steps: location.steps+stepSize,
                                 distanceFromGoal: this.metric(newPosition,endPosition),
                                 previousLocation: location
                             })
                         }
                         else {
-                            if (inClosedListAlready && inClosedListAlready.steps > location.steps+stepSize[Math.abs(i)+Math.abs(j)]) {
-                                inClosedListAlready.steps = location.steps+stepSize[Math.abs(i)+Math.abs(j)];
+                            // if the position is already in the list, adjust to be whichever version is shorter
+                            if (inClosedListAlready && inClosedListAlready.steps > location.steps+stepSize) {
+                                inClosedListAlready.steps = location.steps+stepSize;
                                 inClosedListAlready.previousLocation = location;
                             }
-                            if (inOpenListAlready && inOpenListAlready.steps > location.steps+stepSize[Math.abs(i)+Math.abs(j)]) {
-                                inOpenListAlready.steps = location.steps+stepSize[Math.abs(i)+Math.abs(j)];
+                            if (inOpenListAlready && inOpenListAlready.steps > location.steps+stepSize) {
+                                inOpenListAlready.steps = location.steps+stepSize;
                                 inOpenListAlready.previousLocation = location;
                             }
                         }
