@@ -1,6 +1,7 @@
 import { ActorParams, Pronouns, attitude } from './ActorInterfaces';
 import { Art, Position } from '../util/interfaces';
 import { Map } from '../map/Map';
+import { Messenger } from 'scripts/messages/Messenger';
 
 /** Monsters, the player, etc. Things that move and do stuff */
 export class Actor {
@@ -29,6 +30,9 @@ export class Actor {
     /** Position of the actor */
     protected position: Position;
 
+    /** Messenger object */
+    protected messenger: Messenger;
+
     constructor(parameters: ActorParams) {
         const {
             art,
@@ -39,6 +43,7 @@ export class Actor {
             attitude='neutral',
             behaviours=[],
             title="",
+            messenger,
             ...rest
         } = parameters;
 
@@ -49,6 +54,7 @@ export class Actor {
         this.title = title;
         this.attitude = attitude;
         this.behaviours = behaviours;
+        this.messenger = messenger;
     }
 
     /** Art for the actor */
@@ -87,6 +93,16 @@ export class Actor {
         // Get the square to move the actor to
         const square = this.map.getSquare(position.x, position.y);
         if (square && square.passable && !square.actor) {
+            
+            // Remove actor from previous location, if possible
+            if (this.position) {
+                const previousSquare = this.map.getSquare(this.position.x, this.position.y);
+                if (previousSquare && previousSquare.actor === this) {
+                    previousSquare.actor = undefined;
+                }
+            }
+            
+            // Move to the new location
             square.actor = this;
             this.position = position;
             return true;

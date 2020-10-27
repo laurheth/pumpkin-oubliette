@@ -1,3 +1,4 @@
+import { Messenger } from 'scripts/messages/Messenger';
 import { Map } from '../map/Map';
 import { Position } from '../util/interfaces';
 
@@ -20,9 +21,14 @@ export interface ActorParams {
     pronouns?: Pronouns;
     /** Attitude */
     attitude?: attitude;
+    /** Behaviours */
     behaviours?: Array<string>;
+    /** Map that the actor lives on */
     map?: Map;
+    /** Actor's current position */
     position?: Position;
+    /** Messenger object */
+    messenger: Messenger;
 }
 
 /** Pronouns */

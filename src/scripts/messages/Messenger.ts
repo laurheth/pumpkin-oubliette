@@ -4,7 +4,7 @@ interface Action {
 }
 
 interface FormattedMessage {
-    heading: string;
+    heading?: string;
     subtext?: string;
     maintext: string;
 }
@@ -23,13 +23,15 @@ export class Messenger {
     /** Some logic for generating messages from a combination of sources */
     private partialMessages: Array<PartialMessage>;
     private actions: Array<Action>;
+    private heading: string;
+    private subHeading: string;
 
     constructor(element:HTMLDivElement) {
         this.element = element;
         this.partialMessages = [];
         this.actions = [];
         this.clear();
-    }
+    };
 
     /** Update the message display */
     message(message:string|FormattedMessage, actions:Array<Action>) {
@@ -43,9 +45,11 @@ export class Messenger {
             this.element.appendChild(paragraph);
         }
         else {
-            const heading = document.createElement('h2');
-            heading.textContent = message.heading;
-            this.element.appendChild(heading);
+            if (message.heading) {
+                const heading = document.createElement('h2');
+                heading.textContent = message.heading;
+                this.element.appendChild(heading);
+            }
 
             if (message.subtext) {
                 const subHeading = document.createElement('h3');
@@ -73,7 +77,7 @@ export class Messenger {
             actionList.appendChild(listItem);
         });
         this.element.appendChild(actionList);
-    }
+    };
 
     /** Clear messages */
     clear() {
@@ -81,7 +85,7 @@ export class Messenger {
         while(this.element.lastElementChild) {
             this.element.removeChild(this.element.lastElementChild);
         }
-    }
+    };
 
     /** Add a partial message */
     addMessage(partial: PartialMessage) {
@@ -90,12 +94,18 @@ export class Messenger {
         }
 
         this.partialMessages.push(partial);
-    }
+    };
 
     /** Add a possible action */
     addAction(action:Action) {
         this.actions.push(action);
-    }
+    };
+
+    /** Set current heading */
+    setHeading(heading:string, subHeading?:string) {
+        this.heading = heading;
+        this.subHeading = subHeading;
+    };
 
     /** Generate messages based on the partials given */
     generate() {
@@ -110,10 +120,16 @@ export class Messenger {
         }
 
         // Display the combined results.
-        this.message(message,this.actions);
+        this.message({
+            heading: this.heading,
+            subtext: this.subHeading,
+            maintext: message,
+        },this.actions);
 
         // Purge the old list
         this.partialMessages=[];
         this.actions=[];
-    }
+        this.heading='';
+        this.subHeading='';
+    };
 }

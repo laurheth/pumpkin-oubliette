@@ -55,7 +55,7 @@ class Game {
         this.messenger = new Messenger(this.messageContainer);
 
         // Create the player
-        this.player = new Player();
+        this.player = new Player(this.messenger);
 
         // Generate the map
         this.map = new Map({
@@ -65,9 +65,15 @@ class Game {
 
         this.map.drawMap();
 
-        this.eventManager.add({actor:this.player});
+        // Some test actors
+        const actor1 = new Actor({art:'g',name:'Goblin',messenger:this.messenger});
+        const actor2 = new Actor({art:'g',name:'Goblin',messenger:this.messenger});
 
-        // this.play();
+        this.eventManager.add({actor:this.player});
+        this.eventManager.add({actor:actor1});
+        this.eventManager.add({actor:actor2});
+
+        this.play();
     }
 
     async play() {
@@ -79,5 +85,3 @@ class Game {
 }
 
 const game = new Game();
-
-export default game;
