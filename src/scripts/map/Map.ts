@@ -57,7 +57,7 @@ export class Map {
         this.fov = new FOV((position:Array<number>)=>{
             const square = this.getSquare(position[0],position[1]);
             if (square) {square.visible=true;}
-            return square && square.passable;
+            return square && square.seeThrough;
         },8)
 
         // Check if a source was provided. If not, generator should be set to default
@@ -120,7 +120,7 @@ export class Map {
             for (let y=0;y<this.height;y++) {
                 const square = this.getSquare(x,y);
                 if (square) {
-                    square.visible=true;
+                    square.visible=false;
                 }
             }
         }
@@ -641,7 +641,19 @@ export class Map {
                 if (mainSquare.location && mainSquare.location instanceof Hallway) {
                     // Door
                     if (roomTiles.passable===1 && roomTiles.unPassable===2 && hallTiles.passable===2) {
-                        mainSquare.parameters={art:'+',passable:true,location:mainSquare.location};
+                        mainSquare.parameters={
+                            art:'+',
+                            passable:true,
+                            location:mainSquare.location,
+                            seeThrough:false
+                        };
+                        mainSquare.door={
+                            art:'/',
+                            passable:true,
+                            location:mainSquare.location,
+                            seeThrough:true
+                        };
+                        mainSquare.isOpen=false;
                     }
                     // Intersections
                     else if (hallTiles.passable > 3 && roomTiles.passable===0 && roomTiles.unPassable===0) {

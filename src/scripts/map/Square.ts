@@ -13,11 +13,15 @@ export class Square {
     public location: MapNode;
     private _visible: boolean;
     public seen: boolean;
+    public seeThrough: boolean;
+    public door: SquareParams;
+    public isOpen:boolean;
     // items?
     constructor(parameters: SquareParams) {
         this.parameters = parameters;
         this.memoryArt = {art:'',foreground:'gray',background:'black'};
         this.visible = false;
+        this.isOpen=true;
     }
 
     /** Get the current art for the square */
@@ -49,6 +53,13 @@ export class Square {
             ...rest
         } = parameters;
 
+        if ('seeThrough' in rest) {
+            this.seeThrough = rest.seeThrough;
+        }
+        else {
+            this.seeThrough = passable;
+        }
+
         this.baseArt = {art, background, foreground};
         this.passable = passable;
         this.empty = empty;
@@ -75,5 +86,14 @@ export class Square {
             this.seen=true;
         }
         this._visible = see;
+    }
+
+    toggleDoor() {
+        if (this.door) {
+            this.isOpen=!this.isOpen;
+            const scratch = {...this.parameters};
+            this.parameters = this.door;
+            this.door = scratch;
+        }
     }
 }

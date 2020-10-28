@@ -9,6 +9,7 @@ export interface SquareParams {
     passable?: boolean;
     empty?:boolean;
     location?: MapNode;
+    seeThrough?:boolean;
 }
 
 export interface MapParams {

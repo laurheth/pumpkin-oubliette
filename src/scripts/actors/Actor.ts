@@ -151,6 +151,17 @@ export class Actor {
             x:this.position.x+Math.round(dx),
             y:this.position.y+Math.round(dy)
         }
+        // Is this a door?
+        const newSquare = this.map.getSquare(newPosition.x,newPosition.y)
+        if ( newSquare && newSquare.door) {
+            console.log('found a door');
+            if ( !newSquare.isOpen ) {
+                console.log('tried to open it')
+                newSquare.toggleDoor();
+                return true;
+            }
+        }
+        // Move
         return this.setPosition(newPosition);
     }
 
