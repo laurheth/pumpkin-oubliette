@@ -154,9 +154,8 @@ export class Actor {
         // Is this a door?
         const newSquare = this.map.getSquare(newPosition.x,newPosition.y)
         if ( newSquare && newSquare.door) {
-            console.log('found a door');
             if ( !newSquare.isOpen ) {
-                console.log('tried to open it')
+                this.doorOpenMessage()
                 newSquare.toggleDoor();
                 return true;
             }
@@ -200,5 +199,13 @@ export class Actor {
                 }
             });
         }
+    }
+
+    /** Send a message about opening a door */
+    doorOpenMessage() {
+        this.messenger.addMessage({
+            message:`A door creaks open. ${name} approaches!`,
+            importance:2
+        });
     }
 };

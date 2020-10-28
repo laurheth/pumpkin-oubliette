@@ -215,6 +215,11 @@ export class Map {
             room.connections = [];
         });
 
+        // Remove self-connections in hallways
+        this.hallways.forEach(hallway=>{
+            hallway.connections = hallway.connections.filter(connection=>connection !== hallway);
+        })
+
         // Every room connected to a hallway is connected to that hallway
         this.hallways.forEach(hallway=>{
             hallway.connections.forEach(room=>{
@@ -404,6 +409,7 @@ export class Map {
                 updateAxis();
             }
             // Determine if we're running into a weird corner
+            const squareCenter = this.getSquare(currentPosition.x, currentPosition.y);
             const square1 = this.getSquare(currentPosition.x+axis.x,currentPosition.y+axis.y);
             const square2 = this.getSquare(currentPosition.x+2*axis.x,currentPosition.y+2*axis.y);
             if (!square1.passable && square1.location && !square2.passable && square2.location) {
@@ -425,7 +431,7 @@ export class Map {
                     if (square) {
                         const location = square.location;
                         // Merge the hallways!
-                        if ((i===0 || j===0) && square.passable && location && location instanceof Hallway) {
+                        if ((i===0 || j===0) && square.passable && location && location instanceof Hallway && !(squareCenter.location instanceof Room)) {
                             // This hallway has already been merged with another! Propogate backwards.
                             if (hallway && hallway !== location)  {
                                 this.mergeHallways(location,hallway);
@@ -442,8 +448,8 @@ export class Map {
                         floors.push(position);
                         // If hallway enters a room, end there
                         if (square && square.location instanceof Room && (square.location !== startRoom)) {
-                            endPosition.x=currentPosition.x;
-                            endPosition.y=currentPosition.y;
+                            endPosition.x=square.location.position.x;
+                            endPosition.y=square.location.position.y;
                             endRoom = square.location;
                         }
                     }

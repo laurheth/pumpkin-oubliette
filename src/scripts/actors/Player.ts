@@ -66,4 +66,12 @@ export class Player extends Actor {
         }
         super.act();
     }
+
+    /** Send a message about opening a door */
+    doorOpenMessage() {
+        this.messenger.addMessage({
+            message:'You open the door...',
+            importance:Infinity
+        });
+    }
 }
