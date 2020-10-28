@@ -22,10 +22,8 @@ h1,h2,h3,p {
             flex-grow: 1;
             width: 100%;
         }
-        .messages {
+        .flexibleMessageBox {
             flex-basis: 10rem;
-            border-top: 1px solid $borderColor;
-            padding: $padding;
         }
     }
     .sideBar {
@@ -35,5 +33,18 @@ h1,h2,h3,p {
         p, ul, li, h2, h3 {
             margin: $margin 0;
         }
+    }
+}
+
+.flexibleMessageBox {
+    position: relative;
+    .messages {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        min-height: 100%;
+        border-top: 1px solid $borderColor;
+        padding: $padding;
+        background: $bodyBackground;
     }
 }
