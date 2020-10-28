@@ -2,7 +2,6 @@ import { ActorParams, Pronouns, attitude, Goal } from './ActorInterfaces';
 import { Art, Position } from '../util/interfaces';
 import { Map } from '../map/Map';
 import { Messenger } from 'scripts/messages/Messenger';
-import { PathFinder } from '../toolkit/toolkit';
 
 /** Monsters, the player, etc. Things that move and do stuff */
 export class Actor {
@@ -204,7 +203,7 @@ export class Actor {
     /** Send a message about opening a door */
     doorOpenMessage() {
         this.messenger.addMessage({
-            message:`A door creaks open. ${name} approaches!`,
+            message:`A door creaks open. ${this.name} the ${this.title} approaches!`,
             importance:2
         });
     }

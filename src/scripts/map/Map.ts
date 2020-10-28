@@ -20,12 +20,12 @@ export class Map {
     public exit: Position;
 
     private display: Display;
-    private random: Random;
+    readonly random: Random;
 
     private rooms: Array<Room>;
     private hallways: Array<Hallway>;
 
-    private player: Player;
+    readonly player: Player;
 
     readonly pathFinder: PathFinder;
 
