@@ -441,7 +441,7 @@ export class Map {
                     if (i===0 && j===0) {
                         floors.push(position);
                         // If hallway enters a room, end there
-                        if (square && square.location instanceof Room && (square.location !== startRoom && square.location !== endRoom)) {
+                        if (square && square.location instanceof Room && (square.location !== startRoom)) {
                             endPosition.x=currentPosition.x;
                             endPosition.y=currentPosition.y;
                             endRoom = square.location;
