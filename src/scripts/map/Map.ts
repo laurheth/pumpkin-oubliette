@@ -120,7 +120,7 @@ export class Map {
             for (let y=0;y<this.height;y++) {
                 const square = this.getSquare(x,y);
                 if (square) {
-                    square.visible=false;
+                    square.visible=true;
                 }
             }
         }
@@ -644,7 +644,7 @@ export class Map {
                         }
                     }
                 }
-                if (mainSquare.location && mainSquare.location instanceof Hallway) {
+                if (mainSquare.location && mainSquare.passable && mainSquare.location instanceof Hallway) {
                     // Door
                     if (roomTiles.passable===1 && roomTiles.unPassable===2 && hallTiles.passable===2) {
                         mainSquare.parameters={
