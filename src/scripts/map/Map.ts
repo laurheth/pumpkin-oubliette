@@ -119,7 +119,9 @@ export class Map {
         for (let x=0;x<this.width;x++) {
             for (let y=0;y<this.height;y++) {
                 const square = this.getSquare(x,y);
-                if (square) {square.visible=false;}
+                if (square) {
+                    square.visible=true;
+                }
             }
         }
 
@@ -641,8 +643,15 @@ export class Map {
                     if (roomTiles.passable===1 && roomTiles.unPassable===2 && hallTiles.passable===2) {
                         mainSquare.parameters={art:'+',passable:true,location:mainSquare.location};
                     }
+                    // Intersections
                     else if (hallTiles.passable > 3 && roomTiles.passable===0 && roomTiles.unPassable===0) {
                         mainSquare.location.intersections.push({x:x,y:y});
+                    }
+                }
+                if (mainSquare.location && mainSquare.location instanceof Room) {
+                    // Valid places to put items
+                    if (mainSquare.passable && roomTiles.passable<4 && hallTiles.passable===0) {
+                        mainSquare.location.validItemSpots.push({x:x,y:y});
                     }
                 }
             }
@@ -651,7 +660,7 @@ export class Map {
 
     /** Method to find travel options */
     getTravelOptions(position: Position): Array<TravelOption> {
-        const options:Array<TravelOption> = [];
+        let options:Array<TravelOption> = [];
 
         const square = this.getSquare(position.x,position.y);
         if (square && square.location) {
@@ -666,12 +675,8 @@ export class Map {
                 };
                 // Connected node is a hallway?
                 if(otherNode instanceof Hallway) {
-                    // Only two directions. Go directly to the connected room
-                    if (otherNode.connections.length === 2 && otherNode.connections.includes(node)) {
-                        travelOption.position = {...otherNode.connections.filter(otherOtherNode=>otherOtherNode!==node)[0].position};
-                    }
                     // Intersections exist? Go to the nearest one
-                    else if(otherNode.intersections.length>0) {
+                    if(otherNode.intersections.length>0) {
                         const nearestIntersection = this.getNearestIntersection(position,otherNode);
                         travelOption.position = {...nearestIntersection};
                     }
@@ -688,7 +693,7 @@ export class Map {
             // Are we in a hallway? Add all intersections to the list
             if (node instanceof Hallway && node.intersections.length>0) {
                 node.intersections.forEach(intersection=>{
-                    if (intersection.x !== position.x && intersection.y !== position.y) {
+                    if (intersection.x !== position.x || intersection.y !== position.y) {
                         options.push({
                             node:node,
                             position:intersection,
@@ -702,9 +707,9 @@ export class Map {
             const toRemove:Array<number>=[];
             options.forEach((option,index)=>{
                 const route = this.pathFinder.findPath([position.x,position.y],[option.position.x, option.position.y],true);
-                console.log('route length',route.length, option);
                 if (route.length > 2) {
                     route.pop();
+                    option.route = [...route];
                     for(const pos of route) {
                         if(options.some(otherOption=>otherOption.position.x===pos[0] && otherOption.position.y===pos[1])) {
                             console.log('skipped though');
@@ -721,29 +726,28 @@ export class Map {
                     // Negative because higher Y === south. Flipped display.
                     let angle = 180*Math.atan2(-direction[1],direction[0])/Math.PI;
                     if (angle<0) {angle+=360;}
-                    console.log(angle);
-                    if (angle<=30 || angle>=330) {
+                    if (angle<=20 || angle>=340) {
                         option.direction=`Move east.`;
                     }
-                    else if (angle<=60) {
+                    else if (angle<=70) {
                         option.direction=`Move northeast.`;
                     }
-                    else if (angle <= 120) {
+                    else if (angle <= 110) {
                         option.direction=`Move north.`;
                     }
-                    else if (angle <= 150) {
+                    else if (angle <= 160) {
                         option.direction=`Move northwest.`;
                     }
-                    else if (angle <= 210) {
+                    else if (angle <= 200) {
                         option.direction=`Move west.`;
                     }
-                    else if (angle <= 240) {
+                    else if (angle <= 250) {
                         option.direction=`Move southwest.`;
                     }
-                    else if (angle <= 300) {
+                    else if (angle <= 290) {
                         option.direction=`Move south.`;
                     }
-                    else if (angle <= 330) {
+                    else if (angle <= 340) {
                         option.direction=`Move southeast.`;
                     }
                 }
@@ -751,7 +755,17 @@ export class Map {
                     option.direction=`Move nebulously to the ${node.name}...`
                 }
             });
-            return options.filter((option,index)=>!toRemove.includes(index));
+            console.log('Options before filtering',[...options]);
+            console.log(toRemove);
+            options = options.filter((option,index)=>!toRemove.includes(index));
+            // Some final postprocessing to handle hallways with only two connections
+            options.forEach(option=>{
+                if (option.node instanceof Hallway && option.node.connections.length===2) {
+                    option.midPosition = {...option.position};
+                    option.position = option.node.connections.filter(con=>con!==node)[0].position;
+                }
+            })
+            return options;
         }
         return [];
     }

@@ -2,7 +2,6 @@ import { Actor } from './Actor';
 import { Goal } from './ActorInterfaces';
 import { Messenger } from '../messages/Messenger';
 import { Position } from '../util/interfaces';
-import { Display } from 'scripts/toolkit/toolkit';
 
 /** The player! */
 export class Player extends Actor {
@@ -32,15 +31,16 @@ export class Player extends Actor {
 
             // Determine directions the play can travel to
             const travelOptions = this.map.getTravelOptions(this.position);
+            console.log('Current node', this.map.getSquare(this.position.x,this.position.y).location, this.position);
             console.log('travelOptions', travelOptions);
             if (travelOptions.length>0) {
                 travelOptions.forEach(option=>{
-                    console.log('option', option);
                     this.messenger.addAction({
                         description:option.direction,
                         callback:()=>{
                             this.currentGoal = {
-                                target:option.position
+                                target:option.position,
+                                midTarget:option.midPosition
                             }
                             this.finishTurn();
                         }
@@ -61,7 +61,7 @@ export class Player extends Actor {
         // Framerate while executing an actions
         else {
             await new Promise(resolve=>{
-                setTimeout(()=>resolve(),20);
+                setTimeout(()=>resolve(),50);
             });
         }
         super.act();

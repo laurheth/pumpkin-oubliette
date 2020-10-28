@@ -47,6 +47,8 @@ export interface Pronouns {
 export interface Goal {
     /** Target position */
     target: Position;
+    /** Middle point to go to before target */
+    midTarget?: Position;
     /** Distance at which to execute */
     distance?:number;
     /** Action to perform */

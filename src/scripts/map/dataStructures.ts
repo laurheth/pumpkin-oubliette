@@ -10,7 +10,9 @@ interface Boundaries {
 export interface TravelOption {
     node: MapNode;
     position: Position;
+    midPosition?: Position;
     direction: string;
+    route?:Array<Array<number>>;
 }
 
 /** Node on the map */
@@ -33,10 +35,12 @@ export class MapNode {
 /** Individual room */
 export class Room extends MapNode {
     public boundaries: Boundaries;
+    public validItemSpots: Array<Position>;
     constructor(position:Position, name?:string, description?:string) {
         if (!name) {name="Generic room";}
         if (!description) {description="A very normal room."}
         super(position, name, description);
+        this.validItemSpots=[];
     }
 }
 

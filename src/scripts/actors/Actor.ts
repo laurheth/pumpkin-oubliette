@@ -91,7 +91,13 @@ export class Actor {
         // A goal exists! Do it.
         if (this.currentGoal) {
             if (this.currentGoal.distance < 0) {this.currentGoal.distance=0;}
-            const { target, distance=0, action=()=>{} } = this.currentGoal;
+            let { target, distance=0, action=()=>{}, midTarget } = this.currentGoal;
+            if (midTarget && (midTarget.x !== this.position.x || midTarget.y !== this.position.y)) {
+                target = {...midTarget};
+            }
+            else if (midTarget && midTarget.x === this.position.x && midTarget.y === this.position.y) {
+                this.currentGoal.midTarget=undefined;
+            }
             if (Math.max(Math.abs(target.x - this.position.x),Math.abs(target.y - this.position.y)) <= distance) {
                 this.currentGoal = undefined;
                 action();
