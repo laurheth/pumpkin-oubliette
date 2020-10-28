@@ -29,14 +29,30 @@ export class Player extends Actor {
                 // Store the resolution function
                 this.finishTurn = resolve;
             });
+
+            // Determine directions the play can travel to
+            const travelOptions = this.map.getTravelOptions(this.position);
+            console.log('travelOptions', travelOptions);
+            if (travelOptions.length>0) {
+                travelOptions.forEach(option=>{
+                    console.log('option', option);
+                    this.messenger.addAction({
+                        description:option.direction,
+                        callback:()=>{
+                            this.currentGoal = {
+                                target:option.position
+                            }
+                            this.finishTurn();
+                        }
+                    });
+                });
+            }
+
+            // Add to the messages
+            this.messenger.addMessage({message:"Testing?"});
     
             // Display current messages and actions
-            this.messenger.message('Test',[{description:"Do a thing",callback:()=>{
-                this.currentGoal = {
-                    target: this.map.getRandomRoom(),
-                }
-                this.finishTurn();
-            }}]);
+            this.messenger.generate();
     
             // Wait for the player's selection before advancing
             await playerActionPromise;

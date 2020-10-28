@@ -2,7 +2,7 @@ import { MapParams, theme, generator } from './MapInterfaces';
 import { Art, Position } from '../util/interfaces';
 import { Display, Random } from '../toolkit/toolkit';
 import { Square } from './Square';
-import { Room, Hallway, MapNode } from './dataStructures';
+import { Room, Hallway, MapNode, TravelOption } from './dataStructures';
 import { Player } from '../actors/Player';
 import { Messenger } from '../messages/Messenger';
 
@@ -76,7 +76,7 @@ export class Map {
 
         // Generate
         if (generator === "default") {
-            this.generateMap(generator, theme,0.75);
+            this.generateMap(generator, theme,0.5);
         }
     };
 
@@ -158,8 +158,8 @@ export class Map {
         let maxIterations=100;
         while (currentSquares < targetSquares && maxIterations>=0) {
             maxIterations--;
-            const width = this.random.getNumber(5,7);
-            const height = this.random.getNumber(5,7);
+            const width = this.random.getNumber(5,9);
+            const height = this.random.getNumber(5,9);
             if (this.addRoom(
                 {
                     x:this.random.getNumber(1,this.width-1),
@@ -646,6 +646,132 @@ export class Map {
                     }
                 }
             }
+        }
+    }
+
+    /** Method to find travel options */
+    getTravelOptions(position: Position): Array<TravelOption> {
+        const options:Array<TravelOption> = [];
+
+        const square = this.getSquare(position.x,position.y);
+        if (square && square.location) {
+            const node = square.location;
+            const connections = node.connections;
+            // Go through each connection
+            connections.forEach(otherNode=>{
+                const travelOption:TravelOption = {
+                    node:otherNode,
+                    position:undefined,
+                    direction:undefined
+                };
+                // Connected node is a hallway?
+                if(otherNode instanceof Hallway) {
+                    // Only two directions. Go directly to the connected room
+                    if (otherNode.connections.length === 2 && otherNode.connections.includes(node)) {
+                        travelOption.position = {...otherNode.connections.filter(otherOtherNode=>otherOtherNode!==node)[0].position};
+                    }
+                    // Intersections exist? Go to the nearest one
+                    else if(otherNode.intersections.length>0) {
+                        const nearestIntersection = this.getNearestIntersection(position,otherNode);
+                        travelOption.position = {...nearestIntersection};
+                    }
+                }
+
+                // Any other case, go to the centre of the other node
+                if (!travelOption.position) {
+                    travelOption.position = {...otherNode.position};
+                }
+
+                options.push(travelOption);
+            });
+
+            // Are we in a hallway? Add all intersections to the list
+            if (node instanceof Hallway && node.intersections.length>0) {
+                node.intersections.forEach(intersection=>{
+                    if (intersection.x !== position.x && intersection.y !== position.y) {
+                        options.push({
+                            node:node,
+                            position:intersection,
+                            direction:undefined
+                        })
+                    }
+                });
+            }
+
+            // Resolve directions to each option, and check if they overlap one another
+            const toRemove:Array<number>=[];
+            options.forEach((option,index)=>{
+                const route = this.pathFinder.findPath([position.x,position.y],[option.position.x, option.position.y],true);
+                console.log('route length',route.length, option);
+                if (route.length > 2) {
+                    route.pop();
+                    for(const pos of route) {
+                        if(options.some(otherOption=>otherOption.position.x===pos[0] && otherOption.position.y===pos[1])) {
+                            console.log('skipped though');
+                            toRemove.push(index);
+                            return;
+                        }
+                    }
+                    let direction=[0,0];
+                    for (let i=0;i<Math.min(10,route.length);i++) {
+                        direction[0] += route[i][0] - position.x;
+                        direction[1] += route[i][1] - position.y;
+                    }
+                    // 360 and 0 === right, 90===up, 180 === left, etc
+                    // Negative because higher Y === south. Flipped display.
+                    let angle = 180*Math.atan2(-direction[1],direction[0])/Math.PI;
+                    if (angle<0) {angle+=360;}
+                    console.log(angle);
+                    if (angle<=30 || angle>=330) {
+                        option.direction=`Move east.`;
+                    }
+                    else if (angle<=60) {
+                        option.direction=`Move northeast.`;
+                    }
+                    else if (angle <= 120) {
+                        option.direction=`Move north.`;
+                    }
+                    else if (angle <= 150) {
+                        option.direction=`Move northwest.`;
+                    }
+                    else if (angle <= 210) {
+                        option.direction=`Move west.`;
+                    }
+                    else if (angle <= 240) {
+                        option.direction=`Move southwest.`;
+                    }
+                    else if (angle <= 300) {
+                        option.direction=`Move south.`;
+                    }
+                    else if (angle <= 330) {
+                        option.direction=`Move southeast.`;
+                    }
+                }
+                else {
+                    option.direction=`Move nebulously to the ${node.name}...`
+                }
+            });
+            return options.filter((option,index)=>!toRemove.includes(index));
+        }
+        return [];
+    }
+
+    /** Get nearest intersection */
+    getNearestIntersection(position:Position, node:Hallway): Position {
+        let minDistance = Infinity;
+        let index=-1;
+        node.intersections.forEach((intersection,i)=>{
+            const route = this.pathFinder.findPath([position.x,position.y],[intersection.x,intersection.y]);
+            if (route.length > 0 && route.length < minDistance) {
+                minDistance = route.length;
+                index=i;
+            }
+        });
+        if (index>=0) {
+            return node.intersections[index];
+        }
+        else {
+            return undefined;
         }
     }
 

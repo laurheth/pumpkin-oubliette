@@ -52,7 +52,7 @@ export class Square {
         this.baseArt = {art, background, foreground};
         this.passable = passable;
         this.empty = empty;
-        this.location = location;
+        this.location = (location) ? location : this.location;
     }
 
     get parameters(): SquareParams {

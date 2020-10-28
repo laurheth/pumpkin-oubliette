@@ -45,7 +45,7 @@ export class PathFinder {
     }
 
     /** Find route from startPosition to endPosition, via A* */
-    findPath(startPosition:Array<number>, endPosition:Array<number>): Array<Array<number>> {
+    findPath(startPosition:Array<number>, endPosition:Array<number>, orthogonalOnly=false): Array<Array<number>> {
         const route: Array<Array<number>> = [];
 
         // Limit the loop so it doesn't break things
@@ -78,6 +78,9 @@ export class PathFinder {
             closedList.forEach(location=>{
                 for (let i=-1;i<2;i++) {
                     for (let j=-1;j<2;j++) {
+                        if (orthogonalOnly && i!==0 && j!==0) {
+                            continue;
+                        }
                         const newPosition = [location.position[0]+i, location.position[1]+j];
                         // Determine the cost / size of step into the square
                         const stepSize = stepSizeArr[Math.abs(i)+Math.abs(j)] * this.weight(newPosition);

@@ -7,6 +7,12 @@ interface Boundaries {
     bottom: number;
 }
 
+export interface TravelOption {
+    node: MapNode;
+    position: Position;
+    direction: string;
+}
+
 /** Node on the map */
 export class MapNode {
     public connections:Array<MapNode>;

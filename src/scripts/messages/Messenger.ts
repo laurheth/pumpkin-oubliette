@@ -116,7 +116,7 @@ export class Messenger {
             if (message.length > 100 && this.partialMessages[i].importance <= 1) {
                 break;
             }
-            message += `${this.partialMessages[i]} `;
+            message += `${this.partialMessages[i].message} `;
         }
 
         // Display the combined results.
