@@ -287,6 +287,7 @@ export class Map {
             passable:true,
         };
 
+        this.nameGen.clearNames();
         this.rooms.forEach(room=>{
             if (room === startRoom) {
                 return;
