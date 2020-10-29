@@ -97,7 +97,7 @@ const feedMe = (name:string, title:string, map:Map, food?:string, eatStrings?:Ar
         ],
         1,
         -1,
-        0,
+        1,
         map,[food])
 }
 
