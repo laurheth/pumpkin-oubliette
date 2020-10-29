@@ -59,6 +59,9 @@ const makeAttack = (description:string, success:string|Array<string>, fail:strin
                     importance:5
                 });
                 target.health -= damage;
+                if (performer instanceof Player && condition) {
+                    performer.useRelevant(condition);
+                }
             }
             else {
                 console.log('fail');
@@ -77,17 +80,16 @@ const makeAttack = (description:string, success:string|Array<string>, fail:strin
 }
 
 /** Helper function for feeding */
-const feedMe = (name:string, title:string, map:Map, food?:string) => {
+const feedMe = (name:string, title:string, map:Map, food?:string, eatStrings?:Array<string>) => {
+    if (!eatStrings)  {
+        eatStrings = ['They eat it happily!', 'They swallow it whole and start to purr!', 'They accept, and love it!'];
+    }
     if (!food) {
         food="food";
     }
     return makeAttack(
         `Offer ${name} the ${title} some ${food}.`,
-        [
-            `You offer ${name} some ${food}. They eat it happily!`,
-            `You offer ${name} some ${food}. They swallow it whole and start to purr!`,
-            `You offer ${name} some ${food}. They accept, and love it!`
-        ],
+        eatStrings.map(str=>`You offer ${name} some ${food}. ${str}`),
         [
             `You offer ${name} some ${food}. They hiss at you!`,
             `You offer ${name} some ${food}. They reject your offer!`,
@@ -238,7 +240,7 @@ export const generateMonster = (map: Map,danger?:number)=>{
             break;
         case "crab":
             name = map.nameGen.getName({prefix:'Crab'});
-            title = 'skull'
+            title = 'crab'
             newMonster = new Monster({
                 art:'🦀',
                 name:name,
@@ -269,7 +271,7 @@ export const generateMonster = (map: Map,danger?:number)=>{
                 messenger:messenger,
                 attitude:'hostile',
                 actionsOn:[
-                    feedMe(name,title,map,"blood"),
+                    feedMe(name,title,map,"blood",['They drink it happily!','They chug it and make happy noises!','They accept your offering!']),
                     petMe(name,title,map,"Pet",["rattle their teeth","roll around","wobble happily"]),
                     attackMe(name,title,map,['hammer'],'Smash',1,3,2),
                     attackMe(name,title,map,['knife'],'Stab',1,2,-1),

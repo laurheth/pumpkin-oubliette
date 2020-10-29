@@ -1,4 +1,5 @@
 import { ActorParams, Pronouns, attitude, Goal, ActorAction } from './ActorInterfaces';
+import { Player } from './Player';
 import { Art, Position } from '../util/interfaces';
 import { Map } from '../map/Map';
 import { Messenger } from 'scripts/messages/Messenger';

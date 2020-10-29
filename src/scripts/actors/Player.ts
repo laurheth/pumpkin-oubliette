@@ -198,4 +198,27 @@ export class Player extends Actor {
             this.updateSidebar();
         }
     }
+
+    /** Expend uses of an appropriate item */
+    useRelevant(conditions:string|Array<string>) {
+        if (typeof conditions === "string") {
+            conditions = [conditions];
+        }
+        const filteredConditions = conditions.filter(condition=>condition !== "hostile" && condition !== "friendly" && condition !== "neutral");
+
+        // Non-attitude conditions exist
+        if (filteredConditions.length>0) {
+            const inventoryCopy = [...this.inventory];
+            // Go from fewest tags to most, to expend uses on the least useful items first
+            inventoryCopy.sort((b,a)=>b.getTags().length - a.getTags().length);
+            // Find first item that covers all of the conditions
+            for (const item of inventoryCopy) {
+                if (filteredConditions.every(condition=>item.getTags().includes(condition))) {
+                    // Found, burn a use. We are done!
+                    item.use();
+                    break;
+                }
+            }
+        }
+    }
 }

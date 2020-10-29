@@ -269,8 +269,13 @@ export class Map {
 
         this.player.setPosition(this.entrance, this);
         
-        const item = new Item("Bag of peanuts","food");
+        const item = new Item("Bag of peanuts","food",this,10,"You are out of peanuts!");
+        const item2 = new Item("Jar of blood","blood",this,10,"You are out of blood!");
+        const item3 = new Item("Bloody Mary (beverage)",["food","blood"],this,10,"You are out of alcohol!");
+        item3.pickUp(this.player);
         item.pickUp(this.player);
+        item2.pickUp(this.player);
+
 
         this.getSquare(this.entrance.x, this.entrance.y).parameters = {
             art:'<',
