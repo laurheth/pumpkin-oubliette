@@ -151,12 +151,39 @@ export const generateDoodad = (map: Map,danger?:number)=>{
         {
             weight:1,
             option:"fountain"
+        },
+        {
+            weight:(danger > 8) ? 1 : 0,
+            option:"magic"
         }
     ];
 
     let newDoodad:Actor;
     const doodadType = map.random.getWeightedElement(odds);
     switch(doodadType) {
+        case "magic":
+            newDoodad = new Actor({
+                art:"🔮",
+                name:"Crystal ball",
+                map:map,
+                messenger:messenger,
+                actionsOn:[
+                    consumeMe(
+                        "Crystal ball",
+                        ["magic"],
+                        "Look into the crystal ball.",
+                        "You look into the crystal ball. The map is revealed to you!",
+                        "The ball shatters!",
+                        1,"Pick up the crystal ball",
+                        "You found another crystal ball! You glue them together for convenience.",
+                        (performer)=>{
+                            map.revealMap();
+                        },
+                        map)
+                ],
+                seeString:"You see here a bag of peanuts."
+            });
+            break;
         case "fountain":
             newDoodad = new Actor({
                 art:"🚰",
@@ -219,7 +246,7 @@ export const generateDoodad = (map: Map,danger?:number)=>{
                         "Bag of gold",
                         ["gold"],
                         "You are out of gold!",
-                        5,
+                        3,
                         "Pick up the bag of gold",
                         "More gold! You combine the bags.",
                         map
@@ -270,11 +297,11 @@ export const generateDoodad = (map: Map,danger?:number)=>{
                     consumeMe(
                         "Cup of coffee",
                         ["coffee"],
-                        "Drink some coffee.",
-                        "You drink some coffee",
+                        "Drink the coffee.",
+                        "You drink the coffee",
                         "You are out of coffee!",
-                        5,"Pick up the cup of coffee",
-                        "You found some more coffee, and comine the cups.",
+                        4,"Pick up the cup of coffee",
+                        "You found some more coffee, and combine the cups.",
                         (performer)=>performer.health+=2,
                         map)
                 ],
@@ -335,7 +362,7 @@ export const generateDoodad = (map: Map,danger?:number)=>{
                         "Eat a peanut.",
                         "You eat a peanut",
                         "You are out of peanuts!",
-                        5,"Pick up the bag of peanuts",
+                        4,"Pick up the bag of peanuts",
                         "You pick up some more peanuts and combine the bags.",
                         (performer)=>performer.health+=2,
                         map)

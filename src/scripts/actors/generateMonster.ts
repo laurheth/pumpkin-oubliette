@@ -191,6 +191,10 @@ export const generateMonster = (map: Map,danger?:number)=>{
             option:"dragon"
         },
         {
+            weight:weightGen(12,15,1,danger),
+            option:"ghost"
+        },
+        {
             weight:1,
             option:"cat"
         }
@@ -200,6 +204,29 @@ export const generateMonster = (map: Map,danger?:number)=>{
     let name:string;
     let title:string;
     switch(monsterType) {
+        case "ghost":
+            name = map.nameGen.getName({suffix:'ghost'});
+            title = 'ghost'
+            newMonster = new Monster({
+                art:'👻',
+                name:name,
+                title:title,
+                messenger:messenger,
+                attitude:'hostile',
+                actionsOn:[
+                    attackMe(name,title,map,['magic'],'Enchant',4,6,4),
+                    attackMe(name,title,map,['hammer'],'Smash',1,2,-4),
+                    attackMe(name,title,map,['knife'],'Stab',1,2,-4),
+                    attackMe(name,title,map,[],'Attack',1,1,-4)
+                ],
+                health:10,
+                attack:5,
+                defense:5,
+            },10,1.1,[
+                attackYou(name,title,map,[`${name} saps your strength!`,`${name} coexists with you in a spooky way!`],`${name} swings an ethereal hand at you, but you avoid the attack!`,3,0,1),
+                attackYou(name,title,map,[`${name} moans spookily!`,`${name} screams! Your hair stands up!`],`${name} cries out! You hold steady.`,2,1,4),
+            ]);
+            break;
         case "cat":
             name = map.nameGen.getName({});
             title = 'cat'
@@ -279,7 +306,8 @@ export const generateMonster = (map: Map,danger?:number)=>{
                     feedMe(name,title,map,"coffee",['They drink it happily!','They chug it and make happy noises!','They accept your offering!']),
                     petMe(name,title,map,"Pet",["rattle their teeth","roll around","wobble happily"]),
                     attackMe(name,title,map,['hammer'],'Smash',1,3,2),
-                    attackMe(name,title,map,['knife'],'Stab',1,2,-1),
+                    attackMe(name,title,map,['knife'],'Stab',1,2,0),
+                    attackMe(name,title,map,['magic'],'Enchant',4,-1,4),
                     attackMe(name,title,map)
                 ],
                 health:6,

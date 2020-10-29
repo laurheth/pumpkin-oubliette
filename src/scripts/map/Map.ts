@@ -164,6 +164,32 @@ export class Map {
         }
     }
 
+    /** Reveal the whole map */
+    revealMap() {
+        // See the entire map
+        for (let x=0;x<this.width;x++) {
+            for (let y=0;y<this.height;y++) {
+                const square = this.getSquare(x,y);
+                if (square) {
+                    square.visible=true;
+                }
+            }
+        }
+        // Draw each tile
+        for (let x=0;x<this.width;x++) {
+            for (let y=0;y<this.height;y++) {
+                const square = this.getSquare(x,y);
+                const art = square.art;
+                this.display.setTile(x,y,{
+                    content:art.art,
+                    foreground:art.foreground,
+                    background:art.background
+                });
+            }
+        }
+        this.drawMap();
+    }
+
     /** Get travel options */
     travelOptions(node:MapNode, position:Position) {
         // Current node is a room
