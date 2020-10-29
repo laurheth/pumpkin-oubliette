@@ -9,7 +9,7 @@ const dist='dist';
 const assets='assets';
 
 // App title
-const title='Roguelike Maybe';
+const title='The Pumpkin Oubliette';
 const shortName = title;
 const description = title;
 

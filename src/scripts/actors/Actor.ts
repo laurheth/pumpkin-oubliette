@@ -49,6 +49,9 @@ export class Actor {
 
     protected alive:boolean;
 
+    public attack:number;
+    public defense:number;
+
     constructor(parameters: ActorParams) {
         const {
             art,
@@ -62,9 +65,12 @@ export class Actor {
             messenger,
             actionsOn=[],
             health=Infinity,
+            attack=2,
+            defense=2,
             ...rest
         } = parameters;
 
+        
         // Store all the details
         this.art = {art, foreground, background};
         this.pronouns = pronouns;
@@ -75,6 +81,8 @@ export class Actor {
         this.messenger = messenger;
         this.actionsOn = actionsOn;
         this.health = health;
+        this.attack=attack;
+        this.defense=defense;
         this.alive = true;
 
         // Some prep for pathfinding
@@ -126,6 +134,10 @@ export class Actor {
     set health(newHealth:number) {
         if (this._health > newHealth) {
             this.attitude = "hostile";
+        }
+        else if (this._health < newHealth) {
+            this.attitude = "friendly";
+            this.currentGoal=undefined;
         }
         this._health = newHealth;
         if (newHealth <= 0) {
@@ -288,7 +300,9 @@ export class Actor {
     }
 
     /** Get actions on */
-    getActionsOn(performer:Actor,tags:Array<string>) {
+    getActionsOn(performer:Actor,performerTags:Array<string>) {
+        // Include attitude in tags
+        const tags = [...performerTags, this.attitude];
         if (this.map && this.messenger && this.actionsOn.length>0) {
             if(this.map.getSquare(this.position.x, this.position.y).visible) {
                 this.actionsOn.forEach(action=>{
@@ -314,6 +328,29 @@ export class Actor {
                 });
             }
         }
+    }
+
+    /** Performer an attack */
+    attemptAttack(target:Actor, bonusAttack?:number):boolean {
+        if (target.attitude === "friendly") {
+            return true;
+        }
+        let attack = this.attack+1;
+        const defense = target.defense;
+        if (bonusAttack) {attack+=bonusAttack;}
+
+        let success=0;
+        for (let i=0;i<Math.max(1,attack);i++) {
+            if (this.map.random.getRandom() > 0.5) {
+                success++;
+            }
+        }
+        for (let i=0;i<Math.max(1,defense);i++) {
+            if (this.map.random.getRandom() > 0.5) {
+                success--;
+            }
+        }
+        return (success>0);
     }
 
     finishTurn() {}

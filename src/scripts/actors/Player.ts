@@ -31,8 +31,8 @@ export class Player extends Actor {
             messenger: messenger,
         });
         this.mood="Pumped up";
-        this.health=10;
         this.maxHealth=10;
+        this.health=10;
         this.sideBar = sideBar;
         this.inventory = [];
         this.sideBarElements = {
@@ -46,6 +46,10 @@ export class Player extends Actor {
     
     /** Player turn */
     async act() {
+        // Check health...
+        if (this.health > this.maxHealth) {
+            this.health = Math.min(this.health,this.maxHealth);
+        }
         this.updateSidebar();
         this.map.drawMap();
         // Check if the player does not currently have any goals. Get a new action if not.
@@ -121,7 +125,6 @@ export class Player extends Actor {
     /** Update the sidebar */
     updateSidebar() {
         const {name,title,mood,health,inventory,...rest} = this.sideBarElements;
-
         name.textContent = this.name;
         title.textContent = this.title;
         mood.textContent = this.mood;

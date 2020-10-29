@@ -47,7 +47,11 @@ export interface ActorParams {
     /** Actions performed on */
     actionsOn?:Array<ActorAction>;
     /** Start health */
-    health?:number
+    health?:number;
+    /** Attack */
+    attack?:number;
+    /** Defense */
+    defense?:number;
 }
 
 /** Pronouns */

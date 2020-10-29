@@ -8,6 +8,7 @@ import { Actor } from './actors/Actor';
 import { Player } from './actors/Player';
 import { Map } from './map/Map';
 import { Messenger } from './messages/Messenger';
+import { NameGen } from './actors/nameGen';
 
 /** Main Game Object */
 class Game {
@@ -36,6 +37,9 @@ class Game {
     /** Messenger */
     messenger: Messenger;
 
+    /** Name generator */
+    nameGen: NameGen;
+
     constructor() {
         // Select the important sections
         this.displayContainer = document.querySelector('#displayContainer');
@@ -51,6 +55,9 @@ class Game {
         // Initialize the prng.
         this.random = new Toolkit.Random();
 
+        // Name generator
+        this.nameGen = new NameGen(this.random);
+
         // Initialize the messenger
         this.messenger = new Messenger(this.messageContainer);
 
@@ -59,19 +66,13 @@ class Game {
 
         // Generate the map
         this.map = new Map({
-            width: 30,
-            height: 30,
-        }, this.display, this.random, this.player,this.messenger,this.eventManager);
+            width: 60,
+            height: 60,
+        }, this.display, this.random, this.player,this.messenger,this.eventManager, this.nameGen);
 
         this.map.drawMap();
 
-        // Some test actors
-        const actor1 = new Actor({art:'g',name:'Goblin',messenger:this.messenger});
-        const actor2 = new Actor({art:'g',name:'Goblin',messenger:this.messenger});
-
         this.eventManager.add({actor:this.player});
-        this.eventManager.add({actor:actor1});
-        this.eventManager.add({actor:actor2});
 
         this.play();
     }

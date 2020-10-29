@@ -5,10 +5,12 @@ import { Square } from './Square';
 import { Room, Hallway, MapNode, TravelOption } from './dataStructures';
 import { Player } from '../actors/Player';
 import { Messenger } from '../messages/Messenger';
+import { Item } from '../items/Item';
 
-import { generateMonster } from '../actors/Monster';
+import { generateMonster } from '../actors/generateMonster';
 
 import { PathFinder, FOV } from '../toolkit/toolkit';
+import { NameGen } from '../actors/nameGen';
 
 /** Map class */
 export class Map {
@@ -33,21 +35,28 @@ export class Map {
 
     private fov: FOV;
 
-    private messenger: Messenger;
+    readonly messenger: Messenger;
 
     readonly eventManager: EventManager;
 
-    constructor(parameters: MapParams, display: Display, random: Random, player: Player, messenger: Messenger, eventManager: EventManager) {
+    readonly nameGen: NameGen;
+
+    public level:number;
+
+    constructor(parameters: MapParams, display: Display, random: Random, player: Player, messenger: Messenger, eventManager: EventManager, nameGen:NameGen) {
         // Useful things from elsewhere in the app
         this.display = display;
         this.random = random;
         this.player = player;
         this.messenger = messenger;
         this.eventManager = eventManager;
+        this.nameGen = nameGen;
         
         // Parameters and defaults
         const {width=30, height=30, source, level=1, theme="default", ...rest} = parameters;
         let generator = (rest.generator) ? rest.generator : "default";
+
+        this.level=level;
 
         // Boot up the pathfinder
         this.pathFinder = new PathFinder({
@@ -260,6 +269,9 @@ export class Map {
 
         this.player.setPosition(this.entrance, this);
         
+        const item = new Item("Bag of peanuts","food");
+        item.pickUp(this.player);
+
         this.getSquare(this.entrance.x, this.entrance.y).parameters = {
             art:'<',
             passable:true,
@@ -270,8 +282,16 @@ export class Map {
             passable:true,
         };
 
-        const newMonster = generateMonster(this.messenger,this.eventManager);
-        newMonster.setPosition(this.exit,this);
+        this.rooms.forEach(room=>{
+            if (room === startRoom) {
+                return;
+            }
+            const totalLevel = this.level + this.nodeDistance(startRoom,room);
+            if (this.random.getRandom()>0.5) {
+                const newMonster = generateMonster(this,totalLevel);
+                newMonster.setPosition(room.position,this);
+            }
+        });
 
         this.postProcessing();
     };

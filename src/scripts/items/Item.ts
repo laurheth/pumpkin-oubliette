@@ -5,14 +5,12 @@ import { Map } from '../map/Map';
 
 export class Item {
     private player: Player;
-    private map:Map;
     private tags:Array<string>;
     private action:ActorAction;
     private singleUse:boolean;
     readonly name:string;
 
-    constructor(map:Map, name:string, tags:string|Array<string>, action?:ActorAction, singleUse?:boolean) {
-        this.map=map;
+    constructor(name:string, tags:string|Array<string>, action?:ActorAction, singleUse?:boolean) {
         if (typeof tags === "string") {
             tags=[tags];
         }

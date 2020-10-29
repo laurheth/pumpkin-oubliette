@@ -1,54 +1,7 @@
 import { Actor } from './Actor';
-import { ActorParams, Pronouns, attitude, Goal, ActorAction } from './ActorInterfaces';
-import { Art, Position } from '../util/interfaces';
-import { Map } from '../map/Map';
+import { ActorParams, ActorAction } from './ActorInterfaces';
+import { Position } from '../util/interfaces';
 import { Square } from '../map/Square';
-import { EventManager } from '../toolkit/toolkit';
-import { Messenger } from 'scripts/messages/Messenger';
-
-/** Generate monster */
-export const generateMonster = (messenger:Messenger, eventManager:EventManager)=>{
-    const newMonster = new Monster({
-        art:'🎃',
-        name:'Pumpkin',
-        title:'Pumpkin',
-        messenger:messenger,
-        attitude:'hostile',
-        actionsOn:[
-            {
-                distance:1,
-                callback:(doer:Actor, doner:Actor)=>{
-                    messenger.addMessage({
-                        message:"You fed the pumpkin!",
-                        importance:3
-                    })
-                    doner.health -= 10;
-                },
-                description:'Feed the pumpkin.'
-            }
-        ],
-        health:3
-    },8,2,[
-        {
-            distance:1,
-            callback:(doer:Actor, doner:Actor)=>{
-                messenger.addMessage({
-                    message:"The pumpkin fed YOU!",
-                    importance:2
-                })
-                doner.health -= 2;
-            },
-            description:''
-        }
-    ]);
-
-    eventManager.add({
-        actor:newMonster,
-        delay:newMonster.speed
-    });
-
-    return newMonster;
-};
 
 /** Hostile critters */
 export class Monster extends Actor {
@@ -75,10 +28,27 @@ export class Monster extends Actor {
             if (square && square.visible) {
                 // Oh no! A fiend!
                 if (this.awake < 0 ) {
-                    this.messenger.addMessage({
-                        message:`${this.name} the ${this.title} comes into view!`
-                    })
-                    this.map.player.interruptTravel();
+                    if (this.attitude==='hostile') {
+                        this.messenger.addMessage({
+                            message: this.map.random.getRandomElement([
+                                `${this.name} the ${this.title} comes into view. They look at you and shout!`,
+                                `${this.name} the ${this.title} comes into view. They look angry!`,
+                                `${this.name} the ${this.title} comes into view. They roar!`,
+                                `${this.name} the ${this.title} comes into view. They bare their teeth!`,
+                            ])
+                        })
+                        this.map.player.interruptTravel();
+                    }
+                    else {
+                        this.messenger.addMessage({
+                            message: this.map.random.getRandomElement([
+                                `${this.name} the ${this.title} comes into view. They purr!`,
+                                `${this.name} the ${this.title} comes into view. They roll around cutely.`,
+                                `${this.name} the ${this.title} comes into view. They are taking a nap.`,
+                                `${this.name} the ${this.title} comes into view. They look happy!`,
+                            ])
+                        })
+                    }
                 }
                 this.awake=this.persistence;
             }
@@ -88,6 +58,7 @@ export class Monster extends Actor {
         }
         /** Sleep. Maybe jitter a bit */
         if (this.awake<0 || !this.map) {
+            this.currentGoal=undefined;
             if (!this.behaviours.includes("sleeps") && this.distanceToPlayer() < 10) {
                 const steps = [this.map.random.getNumber(-1,1),this.map.random.getNumber(-1,1)];
                 this.step(steps[0],steps[1]);
