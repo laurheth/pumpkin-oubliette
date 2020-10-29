@@ -6,16 +6,20 @@ import { Position } from '../util/interfaces';
 /** The player! */
 export class Player extends Actor {
 
+    /** Sidebar where cool information goes */
+    readonly sideBar: HTMLDivElement;
+
     /** Resolution function to advance */
     finishTurn: (value?:unknown)=>void;
 
-    constructor(messenger: Messenger) {
+    constructor(messenger: Messenger, sideBar: HTMLDivElement) {
         super({
             name: "Franklin",
             title: "The Pumpkin Slayer",
             art: '@',
             messenger: messenger,
         });
+        this.sideBar = sideBar;
     };
     
     /** Player turn */
@@ -83,10 +87,16 @@ export class Player extends Actor {
         });
     }
 
+    /** Interrupt the players movement to let them know about something important */
     interruptTravel() {
         if (this.currentGoal && !this.currentGoal.action) {
             this.currentGoal = undefined;
             this.finishTurn();
         }
+    }
+
+    /** Update the sidebar */
+    updateSidebar() {
+
     }
 }

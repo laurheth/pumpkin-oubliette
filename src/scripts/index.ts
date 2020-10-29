@@ -55,7 +55,7 @@ class Game {
         this.messenger = new Messenger(this.messageContainer);
 
         // Create the player
-        this.player = new Player(this.messenger);
+        this.player = new Player(this.messenger, this.sideBar);
 
         // Generate the map
         this.map = new Map({
