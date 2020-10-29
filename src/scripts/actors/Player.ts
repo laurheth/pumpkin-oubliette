@@ -23,6 +23,13 @@ export class Player extends Actor {
 
     public alive:boolean;
 
+    private record: {
+        kills:number,
+        friendships:number,
+        betrayals:number,
+        pets:number,
+    }
+
     constructor(messenger: Messenger, sideBar: HTMLDivElement) {
         super({
             name: "Franklin",
@@ -62,7 +69,9 @@ export class Player extends Actor {
 
             // Determine directions the play can travel to
             const travelOptions = this.map.getTravelOptions(this.position);
-            allActors.forEach(actor=>actor.getActionsOn(this,this.getAllTags()));
+            allActors.forEach(actor=>{
+                actor.getActionsOn(this,this.getAllTags())
+            });
             console.log('Current node', this.map.getSquare(this.position.x,this.position.y).location, this.position);
             console.log('travelOptions', travelOptions);
             if (travelOptions.length>0) {
@@ -186,8 +195,20 @@ export class Player extends Actor {
 
     /** Pick up item */
     addInventory(item:Item) {
-        this.inventory.push(item);
-        this.updateSidebar();
+        // Check if a copy exists, and consolidate the two if so
+        const index = this.inventory.map(item=>item.name).indexOf(item.name)
+        if (index >= 0) {
+            this.inventory[index].uses+=item.uses;
+        }
+        else {
+            this.inventory.push(item);
+            this.updateSidebar();
+        }
+    }
+
+    /** Check if player has an item */
+    hasItem(item:Item):boolean {
+        return this.inventory.map(item=>item.name).includes(item.name);
     }
 
     /** Drop an item */

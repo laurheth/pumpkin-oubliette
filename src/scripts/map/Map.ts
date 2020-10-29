@@ -11,6 +11,7 @@ import { generateMonster } from '../actors/generateMonster';
 
 import { PathFinder, FOV } from '../toolkit/toolkit';
 import { NameGen } from '../actors/nameGen';
+import { generateDoodad } from '../actors/generateDoodad';
 
 /** Map class */
 export class Map {
@@ -269,12 +270,12 @@ export class Map {
 
         this.player.setPosition(this.entrance, this);
         
-        const item = new Item("Bag of peanuts","food",this,10,"You are out of peanuts!");
-        const item2 = new Item("Jar of blood","blood",this,10,"You are out of blood!");
-        const item3 = new Item("Bloody Mary (beverage)",["food","blood"],this,10,"You are out of alcohol!");
-        item3.pickUp(this.player);
-        item.pickUp(this.player);
-        item2.pickUp(this.player);
+        // const item = new Item("Bag of peanuts","food",this,10,"You are out of peanuts!");
+        // const item2 = new Item("Jar of blood","blood",this,10,"You are out of blood!");
+        // const item3 = new Item("Bloody Mary (beverage)",["food","blood"],this,10,"You are out of alcohol!");
+        // item3.pickUp(this.player);
+        // item.pickUp(this.player);
+        // item2.pickUp(this.player);
 
 
         this.getSquare(this.entrance.x, this.entrance.y).parameters = {
@@ -287,19 +288,26 @@ export class Map {
             passable:true,
         };
 
+        this.postProcessing();
+
         this.nameGen.clearNames();
         this.rooms.forEach(room=>{
+            const totalLevel = this.level + this.nodeDistance(startRoom,room);
+            // console.log('valid item spots', room.validItemSpots)
+            if (room.validItemSpots.length>0) {
+                const randomSpot: Position = this.random.getRandomElement(room.validItemSpots);
+                const newDoodad = generateDoodad(this,totalLevel)
+                newDoodad.setPosition(randomSpot,this);
+            }
             if (room === startRoom) {
                 return;
             }
-            const totalLevel = this.level + this.nodeDistance(startRoom,room);
             if (this.random.getRandom()>0.5) {
                 const newMonster = generateMonster(this,totalLevel);
                 newMonster.setPosition(room.position,this);
             }
         });
 
-        this.postProcessing();
     };
 
     /** What the function */

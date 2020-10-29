@@ -52,6 +52,8 @@ export interface ActorParams {
     attack?:number;
     /** Defense */
     defense?:number;
+    /** What to say when this is spotted */
+    seeString?:string;
 }
 
 /** Pronouns */

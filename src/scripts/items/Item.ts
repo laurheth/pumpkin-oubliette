@@ -8,7 +8,7 @@ export class Item {
     private player: Player;
     private tags:Array<string>;
     private action:ActorAction;
-    private uses:number;
+    public uses:number;
     readonly name:string;
     readonly map:Map;
     private finishedString:string;
@@ -32,24 +32,16 @@ export class Item {
     pickUp(player:Actor) {
         if (player instanceof Player) {
             this.player=player;
-            this.player.addInventory(this);
-            if (this.action) {
-                const callback = this.action.callback;
-                this.action.callback = (performer:Actor, target:Actor)=>{
-                    this.uses--;
-                    if (this.uses<=0) {
-                        this.player.removeActionOn(this.action);
-                        this.player.removeInventory(this);
-                    }
-                    callback(performer, target);
-                };
+            if (this.action && !this.player.hasItem(this)) {
                 this.player.addActionOn(this.action);
             }
+            this.player.addInventory(this);
         }
     }
 
     /** Spend a use */
     use() {
+        console.log('using', this.uses);
         this.uses--;
         if (this.uses<=0) {
             if (this.action) {

@@ -10,6 +10,7 @@ export class Monster extends Actor {
     private persistence:number;
     public speed:number;
     private actionsBy:Array<ActorAction>;
+    public hasBeenPet:boolean;
 
     constructor(parameters: ActorParams,persistence?:number, speed?:number,actionsBy?:Array<ActorAction>) {
         super(parameters);
@@ -17,6 +18,7 @@ export class Monster extends Actor {
         this.persistence = (persistence) ? persistence : 8;
         this.speed = (speed) ? speed : 1;
         this.actionsBy = (actionsBy) ? actionsBy : [];
+        this.hasBeenPet=false;
     }
 
     /** Time to do stuff! */

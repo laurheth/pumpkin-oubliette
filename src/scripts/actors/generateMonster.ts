@@ -121,7 +121,11 @@ const petMe = (name:string, title:string, map:Map,verb?:string,happyVerb?:string
         1,
         (performer,target)=>{
             if (performer instanceof Player) {
-                performer.health += 1;
+                // First time petting recovers some health
+                if (target instanceof Monster && !target.hasBeenPet) {
+                    performer.health += 1;
+                    target.hasBeenPet=true;
+                }
             }
         },
         map,["friendly"]
@@ -190,7 +194,6 @@ export const generateMonster = (map: Map,danger?:number)=>{
         }
     ];
 
-    console.log('odds',odds, danger);
     const monsterType = map.random.getWeightedElement(odds);
     let name:string;
     let title:string;
@@ -271,7 +274,7 @@ export const generateMonster = (map: Map,danger?:number)=>{
                 messenger:messenger,
                 attitude:'hostile',
                 actionsOn:[
-                    feedMe(name,title,map,"blood",['They drink it happily!','They chug it and make happy noises!','They accept your offering!']),
+                    feedMe(name,title,map,"coffee",['They drink it happily!','They chug it and make happy noises!','They accept your offering!']),
                     petMe(name,title,map,"Pet",["rattle their teeth","roll around","wobble happily"]),
                     attackMe(name,title,map,['hammer'],'Smash',1,3,2),
                     attackMe(name,title,map,['knife'],'Stab',1,2,-1),

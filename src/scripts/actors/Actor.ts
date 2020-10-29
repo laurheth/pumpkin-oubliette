@@ -53,6 +53,9 @@ export class Actor {
     public attack:number;
     public defense:number;
 
+    public seeString:string;
+    public seen:boolean;
+
     constructor(parameters: ActorParams) {
         const {
             art,
@@ -68,6 +71,7 @@ export class Actor {
             health=Infinity,
             attack=2,
             defense=2,
+            seeString="",
             ...rest
         } = parameters;
 
@@ -85,6 +89,8 @@ export class Actor {
         this.attack=attack;
         this.defense=defense;
         this.alive = true;
+        this.seen=false;
+        this.seeString = seeString;
 
         // Some prep for pathfinding
         this.route=[];
@@ -355,4 +361,13 @@ export class Actor {
     }
 
     finishTurn() {}
+
+    see() {
+        if(!this.seen && this.seeString) {
+            this.messenger.addMessage({
+                message:this.seeString,
+            })
+        }
+        this.seen=true;
+    }
 };
