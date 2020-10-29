@@ -41,6 +41,7 @@ export const generateMonster = (messenger:Messenger, eventManager:EventManager)=
 
     eventManager.add({
         actor:newMonster,
+        delay:newMonster.speed
     });
 
     return newMonster;
@@ -51,7 +52,7 @@ export class Monster extends Actor {
 
     private awake: number;
     private persistence:number;
-    private speed:number;
+    public speed:number;
     private actionsBy:Array<ActorAction>;
 
     constructor(parameters: ActorParams,persistence?:number, speed?:number,actionsBy?:Array<ActorAction>) {
@@ -64,6 +65,7 @@ export class Monster extends Actor {
 
     /** Time to do stuff! */
     act() {
+        super.act();
         let square: Square;
         if (this.position && this.map) {
             square = this.map.getSquare(this.position.x, this.position.y);
@@ -95,9 +97,9 @@ export class Monster extends Actor {
                 if (!this.currentGoal) {
                     if (this.actionsBy.length > 0) {
                         const actionToDo: ActorAction = this.map.random.getRandomElement(this.actionsBy);
-                        let targetPosition: Position;
+                        let targetPosition: Position|Actor;
                         if (!actionToDo.target || actionToDo.target==="player") {
-                            targetPosition = this.map.player.getPosition();
+                            targetPosition = this.map.player;
                         }
                         else {
                             targetPosition = this.getPosition();
@@ -111,7 +113,6 @@ export class Monster extends Actor {
                 }
             }
         }
-        super.act();
     }
 
     /** Distance to the player */

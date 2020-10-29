@@ -106,6 +106,7 @@ export class Actor {
         if (this.currentGoal) {
             if (this.currentGoal.distance < 0) {this.currentGoal.distance=0;}
             let { target, distance=0, action=()=>{}, midTarget } = this.currentGoal;
+            if (target instanceof Actor) {target = target.getPosition();}
             if (midTarget && (midTarget.x !== this.position.x || midTarget.y !== this.position.y)) {
                 target = {...midTarget};
             }
@@ -135,7 +136,7 @@ export class Actor {
 
         // Get the square to move the actor to
         const square = this.map.getSquare(position.x, position.y);
-        if (square && square.passable && !square.actor) {
+        if (square && square.passable) {
             
             // Remove actor from previous location, if possible
             if (this.position) {
@@ -143,6 +144,12 @@ export class Actor {
                 if (previousSquare && previousSquare.actor === this) {
                     previousSquare.actor = undefined;
                 }
+            }
+
+            // Swap places
+            if(square.actor && square.actor !== this) {
+                this.swapMessage(square.actor);
+                square.actor.setPosition(this.position);
             }
             
             // Move to the new location
@@ -218,11 +225,16 @@ export class Actor {
 
     /** Send a message about opening a door */
     doorOpenMessage() {
-        this.messenger.addMessage({
-            message:`A door creaks open. ${this.name} the ${this.title} approaches!`,
-            importance:2
-        });
+        if (this.map.getSquare(this.position.x,this.position.y).visible) {
+            this.messenger.addMessage({
+                message:`A door creaks open. ${this.name} the ${this.title} approaches!`,
+                importance:2
+            });
+        }
     }
+
+    /** Swap position message */
+    swapMessage(actor:Actor) {}
 
     /** Get actions on */
     getActionsOn(performer:Actor) {
@@ -233,7 +245,7 @@ export class Actor {
                         description: action.description,
                         callback: ()=>{
                             performer.currentGoal = {
-                                target:this.getPosition(),
+                                target:this,
                                 action:()=>action.callback(performer,this),
                                 distance:action.distance
                             };

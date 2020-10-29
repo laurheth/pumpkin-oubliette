@@ -76,6 +76,13 @@ export class Player extends Actor {
         });
     }
 
+    swapMessage(actor:Actor) {
+        this.messenger.addMessage({
+            message:`You jump past ${actor.name} the ${actor.title}!`,
+            importance:Infinity
+        });
+    }
+
     interruptTravel() {
         if (this.currentGoal && !this.currentGoal.action) {
             this.currentGoal = undefined;

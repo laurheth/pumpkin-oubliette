@@ -59,7 +59,7 @@ export class Map {
             weight: (pos:Array<number>)=>{
                 const square = this.getSquare(pos[0],pos[1]);
                 if (square && square.actor) {
-                    return 1;
+                    return 4;
                 }
                 return 1;
             }
@@ -740,7 +740,7 @@ export class Map {
             const toRemove:Array<number>=[];
             options.forEach((option,index)=>{
                 const route = this.pathFinder.findPath([position.x,position.y],[option.position.x, option.position.y],true);
-                if (route.length > 2) {
+                if (route.length > 1) {
                     route.pop();
                     option.route = [...route];
                     for(const pos of route) {
