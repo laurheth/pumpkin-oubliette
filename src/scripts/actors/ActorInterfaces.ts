@@ -46,6 +46,8 @@ export interface ActorParams {
     messenger: Messenger;
     /** Actions performed on */
     actionsOn?:Array<ActorAction>;
+    /** Start health */
+    health?:number
 }
 
 /** Pronouns */

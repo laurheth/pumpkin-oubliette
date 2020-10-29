@@ -22,18 +22,21 @@ export const generateMonster = (messenger:Messenger, eventManager:EventManager)=
                         message:"You fed the pumpkin!",
                         importance:3
                     })
+                    doner.health -= 10;
                 },
                 description:'Feed the pumpkin.'
             }
-        ]
+        ],
+        health:3
     },8,2,[
         {
             distance:1,
-            callback:()=>{
+            callback:(doer:Actor, doner:Actor)=>{
                 messenger.addMessage({
                     message:"The pumpkin fed YOU!",
                     importance:2
                 })
+                doner.health -= 2;
             },
             description:''
         }

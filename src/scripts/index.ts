@@ -77,7 +77,7 @@ class Game {
     }
 
     async play() {
-        while (1===1) {
+        while (this.player.alive) {
             await this.eventManager.advance();
         }
     }

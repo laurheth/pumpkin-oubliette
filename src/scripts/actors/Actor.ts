@@ -61,6 +61,7 @@ export class Actor {
             title="",
             messenger,
             actionsOn=[],
+            health=Infinity,
             ...rest
         } = parameters;
 
@@ -73,7 +74,7 @@ export class Actor {
         this.behaviours = behaviours;
         this.messenger = messenger;
         this.actionsOn = actionsOn;
-        this.health = Infinity;
+        this.health = health;
         this.alive = true;
 
         // Some prep for pathfinding
@@ -82,15 +83,20 @@ export class Actor {
         allActors.push(this);
     }
 
-    /** Remove from the registry of all actors */
+    /** Remove from the actor and all references */
     remove() {
+        // Ded
+        this.alive=false;
+        // Remove from actor record
         const index = allActors.indexOf(this);
         if (index>=0) {
             allActors.splice(index,1);
-            if (this.map) {
-                this.map.eventManager.remove(this);
-            }
-            this.alive=false;
+        }
+        // Remove from map stuff
+        if (this.map) {
+            this.map.eventManager.remove(this);
+            this.map.getSquare(this.position.x,this.position.y).actor=undefined;
+            this.position=undefined;
         }
     }
 
@@ -268,11 +274,32 @@ export class Actor {
     /** Swap position message */
     swapMessage(actor:Actor) {}
 
+    /** Add actions on */
+    addActionOn(newAction: ActorAction) {
+        this.actionsOn.push(newAction);
+    }
+
+    /** Remove action */
+    removeActionOn(removeAction: ActorAction) {
+        const index = this.actionsOn.indexOf(removeAction);
+        if (index>=0) {
+            this.actionsOn.splice(index,1);
+        }
+    }
+
     /** Get actions on */
     getActionsOn(performer:Actor,tags:Array<string>) {
         if (this.map && this.messenger && this.actionsOn.length>0) {
             if(this.map.getSquare(this.position.x, this.position.y).visible) {
                 this.actionsOn.forEach(action=>{
+                    if (action.condition) {
+                        if (typeof action.condition === "string") {
+                            if (!tags.includes(action.condition)) {return;}
+                        }
+                        else {
+                            if (action.condition.some(condition=>!tags.includes(condition))) {return;}
+                        }
+                    }
                     this.messenger.addAction({
                         description: action.description,
                         callback: ()=>{

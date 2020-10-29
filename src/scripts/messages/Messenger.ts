@@ -101,6 +101,11 @@ export class Messenger {
         this.actions.push(action);
     };
 
+    /** Clear the actions list */
+    clearActions() {
+        this.actions = [];
+    }
+
     /** Set current heading */
     setHeading(heading:string, subHeading?:string) {
         this.heading = heading;
