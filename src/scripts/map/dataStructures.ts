@@ -13,6 +13,7 @@ export interface TravelOption {
     midPosition?: Position;
     direction: string;
     route?:Array<Array<number>>;
+    angle?:number;
 }
 
 /** Node on the map */

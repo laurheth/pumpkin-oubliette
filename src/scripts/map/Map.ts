@@ -704,7 +704,8 @@ export class Map {
                 const travelOption:TravelOption = {
                     node:otherNode,
                     position:undefined,
-                    direction:undefined
+                    direction:undefined,
+                    angle:undefined
                 };
                 // Connected node is a hallway?
                 if(otherNode instanceof Hallway) {
@@ -783,6 +784,7 @@ export class Map {
                     else if (angle <= 340) {
                         option.direction=`Move southeast.`;
                     }
+                    option.angle=angle;
                 }
                 else {
                     option.direction=`Move nebulously to the ${node.name}...`
@@ -797,7 +799,8 @@ export class Map {
                     option.midPosition = {...option.position};
                     option.position = option.node.connections.filter(con=>con!==node)[0].position;
                 }
-            })
+            });
+            options.sort((b,a)=>b.angle - a.angle);
             return options;
         }
         return [];
