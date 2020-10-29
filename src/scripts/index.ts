@@ -59,9 +59,9 @@ class Game {
 
         // Generate the map
         this.map = new Map({
-            width: 60,
-            height: 60,
-        }, this.display, this.random, this.player,this.messenger);
+            width: 30,
+            height: 30,
+        }, this.display, this.random, this.player,this.messenger,this.eventManager);
 
         this.map.drawMap();
 

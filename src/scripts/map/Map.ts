@@ -1,10 +1,12 @@
 import { MapParams, theme, generator } from './MapInterfaces';
 import { Art, Position } from '../util/interfaces';
-import { Display, Random } from '../toolkit/toolkit';
+import { Display, Random, EventManager } from '../toolkit/toolkit';
 import { Square } from './Square';
 import { Room, Hallway, MapNode, TravelOption } from './dataStructures';
 import { Player } from '../actors/Player';
 import { Messenger } from '../messages/Messenger';
+
+import { generateMonster } from '../actors/Monster';
 
 import { PathFinder, FOV } from '../toolkit/toolkit';
 
@@ -33,12 +35,15 @@ export class Map {
 
     private messenger: Messenger;
 
-    constructor(parameters: MapParams, display: Display, random: Random, player: Player, messenger: Messenger) {
+    private eventManager: EventManager;
+
+    constructor(parameters: MapParams, display: Display, random: Random, player: Player, messenger: Messenger, eventManager: EventManager) {
         // Useful things from elsewhere in the app
         this.display = display;
         this.random = random;
         this.player = player;
         this.messenger = messenger;
+        this.eventManager = eventManager;
         
         // Parameters and defaults
         const {width=30, height=30, source, level=1, theme="default", ...rest} = parameters;
@@ -51,6 +56,13 @@ export class Map {
                 return square && square.passable;
             },
             maxIterations: width*height,
+            weight: (pos:Array<number>)=>{
+                const square = this.getSquare(pos[0],pos[1]);
+                if (square && square.actor) {
+                    return 1;
+                }
+                return 1;
+            }
         });
 
         // Field of view
@@ -120,7 +132,7 @@ export class Map {
             for (let y=0;y<this.height;y++) {
                 const square = this.getSquare(x,y);
                 if (square) {
-                    square.visible=true;
+                    square.visible=false;
                 }
             }
         }
@@ -257,6 +269,9 @@ export class Map {
             art:'>',
             passable:true,
         };
+
+        const newMonster = generateMonster(this.messenger,this.eventManager);
+        newMonster.setPosition(this.exit,this);
 
         this.postProcessing();
     };

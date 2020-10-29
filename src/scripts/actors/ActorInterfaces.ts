@@ -1,9 +1,18 @@
 import { Messenger } from 'scripts/messages/Messenger';
 import { Map } from '../map/Map';
 import { Position } from '../util/interfaces';
+import { Actor } from './Actor';
 
 /** Attitude */
 export type attitude = "friendly"|"hostile"|"neutral";
+
+/** Actions */
+export interface ActorAction {
+    distance:number;
+    description:string;
+    callback:(actor?:Actor,target?:Actor)=>void;
+    target?:"self"|"player";
+}
 
 /** Setup parameters for a new actor */
 export interface ActorParams {
@@ -29,6 +38,8 @@ export interface ActorParams {
     position?: Position;
     /** Messenger object */
     messenger: Messenger;
+    /** Actions performed on */
+    actionsOn?:Array<ActorAction>;
 }
 
 /** Pronouns */
@@ -52,5 +63,5 @@ export interface Goal {
     /** Distance at which to execute */
     distance?:number;
     /** Action to perform */
-    action?:()=>void;
+    action?:(actor?:Actor,target?:Actor)=>void;
 }

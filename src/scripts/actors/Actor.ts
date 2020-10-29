@@ -1,7 +1,9 @@
-import { ActorParams, Pronouns, attitude, Goal } from './ActorInterfaces';
+import { ActorParams, Pronouns, attitude, Goal, ActorAction } from './ActorInterfaces';
 import { Art, Position } from '../util/interfaces';
 import { Map } from '../map/Map';
 import { Messenger } from 'scripts/messages/Messenger';
+
+export const allActors:Array<Actor> = [];
 
 /** Monsters, the player, etc. Things that move and do stuff */
 export class Actor {
@@ -40,6 +42,8 @@ export class Actor {
     /** Actor's current goal */
     protected currentGoal: Goal;
 
+    protected actionsOn: Array<ActorAction>;
+
     constructor(parameters: ActorParams) {
         const {
             art,
@@ -51,6 +55,7 @@ export class Actor {
             behaviours=[],
             title="",
             messenger,
+            actionsOn=[],
             ...rest
         } = parameters;
 
@@ -62,9 +67,19 @@ export class Actor {
         this.attitude = attitude;
         this.behaviours = behaviours;
         this.messenger = messenger;
+        this.actionsOn = actionsOn;
 
         // Some prep for pathfinding
         this.route=[];
+
+        allActors.push(this);
+    }
+
+    remove() {
+        const index = allActors.indexOf(this);
+        if (index>=0) {
+            allActors.splice(index,1);
+        }
     }
 
     /** Art for the actor */
@@ -97,9 +112,10 @@ export class Actor {
             else if (midTarget && midTarget.x === this.position.x && midTarget.y === this.position.y) {
                 this.currentGoal.midTarget=undefined;
             }
-            if (Math.max(Math.abs(target.x - this.position.x),Math.abs(target.y - this.position.y)) <= distance) {
+            const targetDistance = Math.max(Math.abs(target.x - this.position.x),Math.abs(target.y - this.position.y));
+            if (targetDistance <= distance || (targetDistance <= 1 && this.map.getSquare(target.x, target.y).actor && this.map.getSquare(target.x, target.y).actor !== this)) {
                 this.currentGoal = undefined;
-                action();
+                action(this,this.map.getSquare(target.x,target.y).actor);
             }
             else {
                 this.approach(target);
@@ -168,7 +184,7 @@ export class Actor {
         // New target
         if (!this.targetPosition || (this.targetPosition.x !== target.x || this.targetPosition.y !== target.y)) {
             // Store the target, and determine a route
-            this.targetPosition = {...target};
+            this.targetPosition = target;
             this.route = this.getRoute(target);
         }
         // Next position
@@ -176,7 +192,7 @@ export class Actor {
         if (nextPosition && !this.step(nextPosition.x - this.position.x, nextPosition.y - this.position.y)) {
             // Next position exists, but we can't go there for some reason
             // Recalculate route
-            this.targetPosition = {...target};
+            this.targetPosition = target;
             this.route = this.getRoute(target);
         }
 
@@ -207,4 +223,27 @@ export class Actor {
             importance:2
         });
     }
+
+    /** Get actions on */
+    getActionsOn(performer:Actor) {
+        if (this.map && this.messenger && this.actionsOn.length>0) {
+            if(this.map.getSquare(this.position.x, this.position.y).visible) {
+                this.actionsOn.forEach(action=>{
+                    this.messenger.addAction({
+                        description: action.description,
+                        callback: ()=>{
+                            performer.currentGoal = {
+                                target:this.getPosition(),
+                                action:()=>action.callback(performer,this),
+                                distance:action.distance
+                            };
+                            performer.finishTurn();
+                        },
+                    });
+                });
+            }
+        }
+    }
+
+    finishTurn() {}
 };
