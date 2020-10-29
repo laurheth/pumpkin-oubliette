@@ -293,7 +293,6 @@ export class Map {
         this.nameGen.clearNames();
         this.rooms.forEach(room=>{
             const totalLevel = this.level + this.nodeDistance(startRoom,room);
-            // console.log('valid item spots', room.validItemSpots)
             if (room.validItemSpots.length>0) {
                 const randomSpot: Position = this.random.getRandomElement(room.validItemSpots);
                 const newDoodad = generateDoodad(this,totalLevel)

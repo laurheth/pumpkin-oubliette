@@ -15,6 +15,7 @@ export class Player extends Actor {
     /** Resolution function to advance */
     finishTurn: (value?:unknown)=>void;
 
+    private moodNum:number;
     private mood:string;
 
     private maxHealth:number;
@@ -33,13 +34,13 @@ export class Player extends Actor {
     constructor(messenger: Messenger, sideBar: HTMLDivElement) {
         super({
             name: "Franklin",
-            title: "The Pumpkin Slayer",
+            title: "The Explorer",
             art: '@',
             messenger: messenger,
         });
-        this.mood="Pumped up";
         this.maxHealth=10;
         this.health=10;
+        this.moodNum=0;
         this.sideBar = sideBar;
         this.inventory = [];
         this.sideBarElements = {
@@ -49,6 +50,12 @@ export class Player extends Actor {
             mood: sideBar.querySelector('#playerMood'),
             inventory: sideBar.querySelector('#playerInventory'),
         };
+        this.record={
+            kills:0,
+            friendships:0,
+            betrayals:0,
+            pets:0
+        };
     };
     
     /** Player turn */
@@ -57,6 +64,7 @@ export class Player extends Actor {
         if (this.health > this.maxHealth) {
             this.health = Math.min(this.health,this.maxHealth);
         }
+        this.updateMood();
         this.updateSidebar();
         this.map.drawMap();
         // Check if the player does not currently have any goals. Get a new action if not.
@@ -240,6 +248,75 @@ export class Player extends Actor {
                     break;
                 }
             }
+        }
+    }
+
+    /** Update record */
+    updateRecord(action:"kills"|"betrayals"|"friendships"|"pets") {
+        this.record[action]++;
+        const score = this.record.friendships + this.record.pets - 2*this.record.kills - 2*this.record.betrayals;
+        if (score <= 0) {
+            if (this.record.betrayals > 10) {
+                this.title="The Pumpkin Betrayer";
+            }
+            else if (score <-50) {
+                this.title="Blood Soaked Pumpkin Carver"
+            }
+            else if (score<-30) {
+                this.title="Enemy to All Pumpkins";
+            }
+            else if (score<-10) {
+                this.title="The Pumpkin Slayer";
+            }
+            else {
+                this.title="The Adventurer";
+            }
+        }
+        else {
+            if (this.record.pets > 20) {
+                this.title="Cuddler of Pumpkins";
+            }
+            else if (this.record.friendships > 50) {
+                this.title="Friend to All Pumpkins";
+            }
+            else if (this.record.friendships > 10) {
+                this.title="The Pumpkin Befriender";
+            }
+            else {
+                this.title="The Explorer";
+            }
+        }
+    }
+
+    /** Update mood */
+    updateMood(adjustment?:number){
+        console.log('adjustment',adjustment, this.moodNum);
+        if (adjustment) {
+            this.moodNum -= adjustment;
+        }
+        else {
+            this.moodNum *= 0.99;
+        }
+        if (this.moodNum > 100) {
+            this.mood="Terrified";
+        }
+        else if (this.moodNum > 50) {
+            this.mood="Afraid";
+        }
+        else if (this.moodNum > 20) {
+            this.mood="Nervous";
+        }
+        else if (this.moodNum > -20) {
+            this.mood="Steady";
+        }
+        else if (this.moodNum > -40) {
+            this.mood="Content";
+        }
+        else if (this.moodNum > -100) {
+            this.mood="Happy";
+        }
+        else {
+            this.mood="Ecstatic";
         }
     }
 }

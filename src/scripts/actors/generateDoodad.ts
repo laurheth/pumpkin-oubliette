@@ -14,7 +14,7 @@ const lookAtMe = (name:string, description:string, map:Map): ActorAction => {
         callback:()=>{
             messenger.addMessage({
                 message:`You take a closer look at the ${name}. ${description}`
-            })
+            });
         }
     }
 }
@@ -30,6 +30,7 @@ const improveYou = (description:string,message:string,callback:(performer:Actor)
             messenger.addMessage({
                 message:message
             });
+            performer.updateMood(20);
             target.remove();
         }
     }
@@ -57,6 +58,7 @@ const coolItem = (name:string,tags:Array<string>,outOfUsesString:string,uses:num
                 else {
                     messenger.addMessage({message:`You ${pickUp.toLowerCase()}.`})
                 }
+                performer.updateMood(10);
                 item.pickUp(performer);
             }
             target.remove();
@@ -96,6 +98,7 @@ const consumeMe = (name:string,tags:Array<string>,actionString:string,doneString
                 else {
                     messenger.addMessage({message:`You ${pickUp.toLowerCase()}.`})
                 }
+                performer.updateMood(10);
                 item.pickUp(performer);
             }
             target.remove();

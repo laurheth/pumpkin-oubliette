@@ -139,15 +139,37 @@ export class Actor {
     }
 
     set health(newHealth:number) {
+        let updatePlayerRecord=false;
+        // Do we need to update the players record?
+        if (!(this instanceof Player)) {
+            updatePlayerRecord=true;
+        }
+        // Update mood
+        if (newHealth > this.health) {
+            this.updateMood(5 * (newHealth - this.health));
+        }
+        else {
+            this.updateMood(10 * (newHealth - this.health));
+        }
+
         if (this._health > newHealth) {
+            if (updatePlayerRecord && this.attitude === "friendly") {
+                this.map.player.updateRecord("betrayals");
+            }
             this.attitude = "hostile";
         }
         else if (this._health < newHealth) {
+            if (updatePlayerRecord && this.attitude !== "friendly") {
+                this.map.player.updateRecord("friendships");
+            }
             this.attitude = "friendly";
             this.currentGoal=undefined;
         }
         this._health = newHealth;
         if (newHealth <= 0) {
+            if (updatePlayerRecord) {
+                this.map.player.updateRecord("kills");
+            }
             this.die();
         }
     }
@@ -370,4 +392,6 @@ export class Actor {
         }
         this.seen=true;
     }
+
+    updateMood(adjustment:number){}
 };

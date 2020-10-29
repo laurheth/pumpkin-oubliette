@@ -97,7 +97,7 @@ const feedMe = (name:string, title:string, map:Map, food?:string, eatStrings?:Ar
         ],
         1,
         -1,
-        1,
+        0,
         map,[food])
 }
 
@@ -123,6 +123,8 @@ const petMe = (name:string, title:string, map:Map,verb?:string,happyVerb?:string
             if (performer instanceof Player) {
                 // First time petting recovers some health
                 if (target instanceof Monster && !target.hasBeenPet) {
+                    performer.updateRecord("pets");
+                    performer.updateMood(10);
                     performer.health += 1;
                     target.hasBeenPet=true;
                 }
