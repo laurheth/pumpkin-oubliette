@@ -8,10 +8,16 @@ export type attitude = "friendly"|"hostile"|"neutral";
 
 /** Actions */
 export interface ActorAction {
+    /** Distance at which the action can execute */
     distance:number;
+    /** Description of the action */
     description:string;
+    /** Callback function to run */
     callback:(actor?:Actor,target?:Actor)=>void;
+    /** Target of the action */
     target?:"self"|"player";
+    /** Strings defining the conditions */
+    condition?:string|Array<string>;
 }
 
 /** Setup parameters for a new actor */

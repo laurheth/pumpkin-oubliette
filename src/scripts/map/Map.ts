@@ -35,7 +35,7 @@ export class Map {
 
     private messenger: Messenger;
 
-    private eventManager: EventManager;
+    readonly eventManager: EventManager;
 
     constructor(parameters: MapParams, display: Display, random: Random, player: Player, messenger: Messenger, eventManager: EventManager) {
         // Useful things from elsewhere in the app

@@ -42,7 +42,12 @@ export class Actor {
     /** Actor's current goal */
     protected currentGoal: Goal;
 
+    /** Actions that can be performed on this actor */
     protected actionsOn: Array<ActorAction>;
+
+    protected _health:number;
+
+    protected alive:boolean;
 
     constructor(parameters: ActorParams) {
         const {
@@ -68,6 +73,8 @@ export class Actor {
         this.behaviours = behaviours;
         this.messenger = messenger;
         this.actionsOn = actionsOn;
+        this.health = Infinity;
+        this.alive = true;
 
         // Some prep for pathfinding
         this.route=[];
@@ -75,10 +82,15 @@ export class Actor {
         allActors.push(this);
     }
 
+    /** Remove from the registry of all actors */
     remove() {
         const index = allActors.indexOf(this);
         if (index>=0) {
             allActors.splice(index,1);
+            if (this.map) {
+                this.map.eventManager.remove(this);
+            }
+            this.alive=false;
         }
     }
 
@@ -100,10 +112,30 @@ export class Actor {
         if (newArt.background) {this._art.background = newArt.background;}''
     }
 
+    /** Health of the actor */
+    get health():number {
+        return this._health;
+    }
+
+    set health(newHealth:number) {
+        if (this._health > newHealth) {
+            this.attitude = "hostile";
+        }
+        this._health = newHealth;
+        if (newHealth <= 0) {
+            this.die();
+        }
+    }
+
+    die() {
+        this.messenger.addMessage({message:`${this.name} the ${this.title} dies!`})
+        this.remove();
+    }
+
     /** It is this actors turn. Do something! */
     act() {
         // A goal exists! Do it.
-        if (this.currentGoal) {
+        if (this.currentGoal && this.alive) {
             if (this.currentGoal.distance < 0) {this.currentGoal.distance=0;}
             let { target, distance=0, action=()=>{}, midTarget } = this.currentGoal;
             if (target instanceof Actor) {target = target.getPosition();}
@@ -237,7 +269,7 @@ export class Actor {
     swapMessage(actor:Actor) {}
 
     /** Get actions on */
-    getActionsOn(performer:Actor) {
+    getActionsOn(performer:Actor,tags:Array<string>) {
         if (this.map && this.messenger && this.actionsOn.length>0) {
             if(this.map.getSquare(this.position.x, this.position.y).visible) {
                 this.actionsOn.forEach(action=>{

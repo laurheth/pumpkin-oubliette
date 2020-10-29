@@ -9,8 +9,16 @@ export class Player extends Actor {
     /** Sidebar where cool information goes */
     readonly sideBar: HTMLDivElement;
 
+    private sideBarElements:{name:HTMLElement,title:HTMLElement,health:HTMLElement,mood:HTMLElement,inventory:HTMLUListElement};
+
     /** Resolution function to advance */
     finishTurn: (value?:unknown)=>void;
+
+    private mood:string;
+
+    private maxHealth:number;
+
+    private inventory:Array<string>;
 
     constructor(messenger: Messenger, sideBar: HTMLDivElement) {
         super({
@@ -19,11 +27,23 @@ export class Player extends Actor {
             art: '@',
             messenger: messenger,
         });
+        this.mood="Pumped up";
+        this.health=10;
+        this.maxHealth=10;
         this.sideBar = sideBar;
+        this.inventory = ["A stick", "Trumpet"];
+        this.sideBarElements = {
+            name: sideBar.querySelector('#playerName'),
+            title: sideBar.querySelector('#playerTitle'),
+            health: sideBar.querySelector('#playerHealth'),
+            mood: sideBar.querySelector('#playerMood'),
+            inventory: sideBar.querySelector('#playerInventory'),
+        };
     };
     
     /** Player turn */
     async act() {
+        this.updateSidebar();
         this.map.drawMap();
         // Check if the player does not currently have any goals. Get a new action if not.
         if (!this.currentGoal) {
@@ -35,7 +55,7 @@ export class Player extends Actor {
 
             // Determine directions the play can travel to
             const travelOptions = this.map.getTravelOptions(this.position);
-            allActors.forEach(actor=>actor.getActionsOn(this));
+            allActors.forEach(actor=>actor.getActionsOn(this,this.getAllTags()));
             console.log('Current node', this.map.getSquare(this.position.x,this.position.y).location, this.position);
             console.log('travelOptions', travelOptions);
             if (travelOptions.length>0) {
@@ -97,6 +117,39 @@ export class Player extends Actor {
 
     /** Update the sidebar */
     updateSidebar() {
+        const {name,title,mood,health,inventory,...rest} = this.sideBarElements;
 
+        name.textContent = this.name;
+        title.textContent = this.title;
+        mood.textContent = this.mood;
+        health.textContent = `${this.health} / ${this.maxHealth}`;
+
+        // Figure out inventory
+        while(inventory.lastElementChild) {
+            inventory.removeChild(inventory.lastElementChild);
+        }
+
+        // Add each item to the list
+        this.inventory.forEach(item=>{
+            const itemElement = document.createElement('li');
+            itemElement.textContent = item;
+            inventory.appendChild(itemElement);
+        });
+    }
+
+    /** Get all tags */
+    getAllTags():Array<string> {
+        const tags:Array<string> = [];
+
+        // TODO: Fill this in
+        // Some logic here
+
+        return tags;
+    }
+
+    die() {
+        this.messenger.addMessage({message:`You die...`})
+        this.remove();
+        this.currentGoal=undefined;
     }
 }
