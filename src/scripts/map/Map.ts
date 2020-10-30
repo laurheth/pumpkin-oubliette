@@ -277,9 +277,6 @@ export class Map {
                 }
             });
         })
-        
-        console.log('rooms', this.rooms);
-        console.log('hallways', this.hallways);
 
         // Add start and end
         const startRoom = this.random.getWeightedElement(
@@ -324,8 +321,10 @@ export class Map {
             hallwayNames.splice(randomIndex,1);
         });
         
+        // Put the player at the start
         this.player.setPosition(this.entrance, this);
 
+        // Label up and down squares
         this.getSquare(this.entrance.x, this.entrance.y).parameters = {
             art:'<',
             passable:true,
@@ -336,8 +335,10 @@ export class Map {
             passable:true,
         };
 
+        // Postprocessing
         this.postProcessing();
 
+        // Place items and monsters
         this.nameGen.clearNames();
         this.rooms.forEach(room=>{
             const totalLevel = this.level + this.nodeDistance(startRoom,room);
@@ -356,18 +357,6 @@ export class Map {
         });
 
     };
-
-    /** What the function */
-    whatTheFuck() {
-        this.mapData.forEach(square=>{
-            if (this.hallways.indexOf(square.location as Hallway) >= 0) {
-                square.parameters = {art:(this.hallways.indexOf(square.location as Hallway)).toString()}
-            }
-            // if (square.passable) {
-            //     square.parameters = {art:'@'}
-            // }
-        })
-    }
 
     /** Connectivity test */
     connectivityTest() {
@@ -403,7 +392,6 @@ export class Map {
                 }
             });
         };
-        console.log('test connections:', iterations, nodes);
     }
 
     /** Get node distance */
@@ -827,7 +815,6 @@ export class Map {
                     option.route = [...route];
                     for(const pos of route) {
                         if(options.some(otherOption=>otherOption.position.x===pos[0] && otherOption.position.y===pos[1])) {
-                            console.log('skipped though');
                             toRemove.push(index);
                             return;
                         }
@@ -873,14 +860,9 @@ export class Map {
             });
             console.log('Options before filtering',[...options]);
             console.log(toRemove);
+            // Filter out invalid options
             options = options.filter((option,index)=>!toRemove.includes(index));
-            // Some final postprocessing to handle hallways with only two connections
-            // options.forEach(option=>{
-            //     if (option.node instanceof Hallway && option.node.connections.length===2) {
-            //         option.midPosition = {...option.position};
-            //         option.position = option.node.connections.filter(con=>con!==node)[0].position;
-            //     }
-            // });
+            // Sort so that directions are in order, with North coming first.
             options.forEach(option=>option.angle=(option.angle - 20 + 360) % 360);
             options.sort((b,a)=>b.angle - a.angle);
             console.log(options);
