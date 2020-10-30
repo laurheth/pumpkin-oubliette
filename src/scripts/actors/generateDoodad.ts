@@ -117,11 +117,11 @@ export const generateDoodad = (map: Map,danger?:number)=>{
             option:"peanuts"
         },
         {
-            weight:1,
+            weight:(danger>3) ? 1 : 0,
             option:"knife"
         },
         {
-            weight:1,
+            weight:(danger>3) ? 1 : 0,
             option:"hammer"
         },
         {
@@ -137,7 +137,7 @@ export const generateDoodad = (map: Map,danger?:number)=>{
             option:"phone"
         },
         {
-            weight:1,
+            weight:(danger>5) ? 1 : 0,
             option:"gold"
         },
         {
@@ -145,16 +145,20 @@ export const generateDoodad = (map: Map,danger?:number)=>{
             option:"television"
         },
         {
-            weight:1,
+            weight:(danger>4) ? 1 : 0,
             option:"trophy"
         },
         {
-            weight:1,
+            weight:(danger>4) ? 1 : 0,
             option:"fountain"
         },
         {
             weight:1,
             option:"milk"
+        },
+        {
+            weight:(danger>4) ? 1 : 0,
+            option:"taco"
         },
         {
             weight:(danger > 8) ? 1 : 0,
@@ -371,6 +375,27 @@ export const generateDoodad = (map: Map,danger?:number)=>{
                     )
                 ],
                 seeString:"You see a knife on the ground."
+            });
+            break;
+        case "taco":
+            newDoodad = new Actor({
+                art:"🌮",
+                name:"Taco",
+                map:map,
+                messenger:messenger,
+                actionsOn:[
+                    consumeMe(
+                        "Taco",
+                        ["food"],
+                        "Eat a taco.",
+                        "You eat a taco",
+                        "That was your last taco!",
+                        1,"Pick up the taco",
+                        "You found another taco!",
+                        (performer)=>performer.health+=5,
+                        map)
+                ],
+                seeString:"There is a taco on the ground here. It looks tasty."
             });
             break;
         default:

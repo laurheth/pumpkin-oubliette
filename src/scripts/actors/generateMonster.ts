@@ -53,7 +53,6 @@ const makeAttack = (description:string, success:string|Array<string>, fail:strin
                 failMsg = map.random.getRandomElement(fail);
             }
             if(performer.attemptAttack(target,bonusAttack)) {
-                console.log('success');
                 messenger.addMessage({
                     message:successMsg,
                     importance:5
@@ -64,7 +63,6 @@ const makeAttack = (description:string, success:string|Array<string>, fail:strin
                 }
             }
             else {
-                console.log('fail');
                 messenger.addMessage({
                     message:failMsg,
                     importance:5
@@ -80,7 +78,7 @@ const makeAttack = (description:string, success:string|Array<string>, fail:strin
 }
 
 /** Helper function for feeding */
-const feedMe = (name:string, title:string, map:Map, food?:string, eatStrings?:Array<string>) => {
+const feedMe = (name:string, title:string, map:Map, food?:string, eatStrings?:Array<string>,adjustment=0) => {
     if (!eatStrings)  {
         eatStrings = ['They eat it happily!', 'They swallow it whole and start to purr!', 'They accept, and love it!'];
     }
@@ -97,7 +95,7 @@ const feedMe = (name:string, title:string, map:Map, food?:string, eatStrings?:Ar
         ],
         1,
         -1,
-        0,
+        adjustment,
         map,[food])
 }
 
@@ -215,8 +213,8 @@ export const generateMonster = (map: Map,danger?:number)=>{
                 attitude:'hostile',
                 actionsOn:[
                     attackMe(name,title,map,['magic'],'Enchant',4,6,4),
-                    attackMe(name,title,map,['hammer'],'Smash',1,2,-4),
-                    attackMe(name,title,map,['knife'],'Stab',1,2,-4),
+                    attackMe(name,title,map,['hammer'],'Smash',1,2,-2),
+                    attackMe(name,title,map,['knife'],'Stab',1,2,-2),
                     attackMe(name,title,map,[],'Attack',1,1,-4)
                 ],
                 health:10,
@@ -257,7 +255,7 @@ export const generateMonster = (map: Map,danger?:number)=>{
                 messenger:messenger,
                 attitude:'hostile',
                 actionsOn:[
-                    feedMe(name,title,map,"gold"),
+                    feedMe(name,title,map,"gold",["They accept your offering and add it to their hoard!"]),
                     petMe(name,title,map,"Pet"),
                     attackMe(name,title,map,['hammer'],'Smash',1,3,2),
                     attackMe(name,title,map,['knife'],'Stab',1,3,2),
@@ -280,7 +278,8 @@ export const generateMonster = (map: Map,danger?:number)=>{
                 messenger:messenger,
                 attitude:'hostile',
                 actionsOn:[
-                    feedMe(name,title,map,"coffee"),
+                    feedMe(name,title,map,"food",undefined,-2),
+                    feedMe(name,title,map,"coffee",["They drink it up and pinch their claws happily!", "They quaff it enthusiastically!","Nervous at first, they accept your gift!"]),
                     petMe(name,title,map,"Pet",["raise their claws","pinch happily","make a weird, but happy, gurgling noise"]),
                     attackMe(name,title,map,['hammer'],'Smash',1,3,2),
                     attackMe(name,title,map,['knife'],'Stab',1,2,2),
@@ -329,6 +328,7 @@ export const generateMonster = (map: Map,danger?:number)=>{
                 attitude:'hostile',
                 actionsOn:[
                     feedMe(name,title,map),
+                    feedMe(name,title,map,"coffee",["Nervously at first, they give it a taste and enjoy it!"],-3),
                     petMe(name,title,map),
                     attackMe(name,title,map,['knife'],'Carve',1,10,2),
                     attackMe(name,title,map,['hammer'],'Smash',1,3,0),

@@ -86,13 +86,14 @@ export class Player extends Actor {
                 this.finishTurn = resolve;
             });
 
+            // Check if the stairs are in sight
+            this.map.stairsTest();
+
             // Determine directions the play can travel to, and all available actions
             const travelOptions = this.map.getTravelOptions(this.position);
             allActors.forEach(actor=>{
                 actor.getActionsOn(this,this.getAllTags())
             });
-            console.log('Current node', this.map.getSquare(this.position.x,this.position.y).location, this.position);
-            console.log('travelOptions', travelOptions);
             if (travelOptions.length>0) {
                 const travelActions:Array<Action> = [];
                 travelOptions.forEach(option=>{

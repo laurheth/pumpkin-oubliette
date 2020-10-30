@@ -46,6 +46,11 @@ h1,h2,h3,p {
         border-top: 1px solid $borderColor;
         padding: $padding;
         background: $bodyBackground;
+        .wrapper {
+            width:100%;
+            max-width:800px;
+            margin-left:auto;
+        }
         button {
             border: none;
             color: $bodyColor;

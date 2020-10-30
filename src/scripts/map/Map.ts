@@ -3,9 +3,9 @@ import { Art, Position } from '../util/interfaces';
 import { Display, Random, EventManager } from '../toolkit/toolkit';
 import { Square } from './Square';
 import { Room, Hallway, MapNode, TravelOption } from './dataStructures';
+import { allActors } from '../actors/Actor';
 import { Player } from '../actors/Player';
 import { Messenger } from '../messages/Messenger';
-import { Item } from '../items/Item';
 
 import { generateMonster } from '../actors/generateMonster';
 
@@ -107,7 +107,17 @@ export class Map {
         this.rooms = [];
         this.hallways = [];
 
-        // Generate
+        // Clear out the list of actors and empty the event manager
+        const actors = [...allActors];
+        actors.forEach(actor=>{
+            actor.remove(false);
+        });
+
+        // Add the player back in
+        allActors.push(this.player);
+        this.eventManager.add({actor:this.player});
+
+        // Generate the map
         if (generator === "default") {
             this.generateMap(generator, theme,density);
         }
@@ -141,6 +151,31 @@ export class Map {
 
         this.newLevel(params);
     };
+
+    /** Test to identify exit stairs (TODO potentially expand to other important locations) */
+    stairsTest() {
+        // Exit
+        const square = this.getSquare(this.exit.x, this.exit.y);
+        if (square && square.visible) {
+            // Exit is in sight! Add to the actions list
+            this.messenger.addActionList('Exit Stairs',[
+                {
+                    description:"Go down the stairs and exit the level!",
+                    callback:()=>{
+                        this.player.setGoal({
+                            target:{...this.exit},
+                            distance:0,
+                            action:()=>{
+                                this.messenger.addMessage({message:"You go down the stairs..."});
+                                this.nextLevel(this.level+1);
+                            }
+                        });
+                        this.player.finishTurn();
+                    }
+                }
+            ]);
+        }
+    }
 
     /** Set up the starting squares and fill up the array of mapData */
     allocateMap() {
@@ -232,7 +267,6 @@ export class Map {
 
     /** Generate the map */
     generateMap(generator: generator, theme: theme, fillFraction:number) {
-        console.log('Generating...');
         const targetSquares = fillFraction * this.width * this.height;
         let currentSquares=0;
         let maxIterations=100;
@@ -336,6 +370,8 @@ export class Map {
             // Remove from the list to avoid repeats
             roomNames.splice(randomIndex,1);
         });
+
+        endRoom.description += " There is a downwards staircase here!";
 
         // Now name the halls
         this.hallways.forEach(hall=>{
@@ -887,14 +923,12 @@ export class Map {
                     option.direction=`Move nebulously to the ${node.name}...`
                 }
             });
-            console.log('Options before filtering',[...options]);
-            console.log(toRemove);
             // Filter out invalid options
             options = options.filter((option,index)=>!toRemove.includes(index));
             // Sort so that directions are in order, with North coming first.
             options.forEach(option=>option.angle=(option.angle - 20 + 360) % 360);
             options.sort((b,a)=>b.angle - a.angle);
-            console.log(options);
+
             return options;
         }
         return [];

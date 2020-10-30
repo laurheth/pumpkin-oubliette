@@ -41,7 +41,6 @@ export class Item {
 
     /** Spend a use */
     use() {
-        console.log('using', this.uses);
         this.uses--;
         if (this.uses<=0) {
             if (this.action) {

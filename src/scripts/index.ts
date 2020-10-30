@@ -72,8 +72,6 @@ class Game {
 
         this.map.drawMap();
 
-        this.eventManager.add({actor:this.player});
-
         this.play();
     }
 

@@ -99,9 +99,11 @@ export class Actor {
     }
 
     /** Remove from the actor and all references */
-    remove() {
-        // Ded
-        this.alive=false;
+    remove(die=true) {
+        if (die) {
+            // Ded
+            this.alive=false;
+        }
         // Remove from actor record
         const index = allActors.indexOf(this);
         if (index>=0) {
@@ -110,8 +112,10 @@ export class Actor {
         // Remove from map stuff
         if (this.map) {
             this.map.eventManager.remove(this);
-            this.map.getSquare(this.position.x,this.position.y).actor=undefined;
-            this.position=undefined;
+            if (this.position) {
+                this.map.getSquare(this.position.x,this.position.y).actor=undefined;
+                this.position=undefined;
+            }
         }
     }
 
@@ -328,6 +332,10 @@ export class Actor {
         }
     }
 
+    setGoal(goal:Goal) {
+        this.currentGoal = goal;
+    }
+
     /** Get actions on */
     getActionsOn(performer:Actor,performerTags:Array<string>) {
         // Include attitude in tags
@@ -375,16 +383,28 @@ export class Actor {
             return true;
         }
         let attack = this.attack+1;
-        const defense = target.defense;
+        let defense = target.defense;
         if (bonusAttack) {attack+=bonusAttack;}
 
+        let adjustment=0;
+        if (attack <= 0) {
+            adjustment = 1-attack;
+        }
+        if ((defense + adjustment) <= 0) {
+            adjustment = 1-(defense + adjustment);
+        }
+
+        // Ensure both are positive, but don't adjust unevenly
+        attack+=adjustment;
+        defense+=adjustment;
+
         let success=0;
-        for (let i=0;i<Math.max(1,attack);i++) {
+        for (let i=0;i<attack;i++) {
             if (this.map.random.getRandom() > 0.5) {
                 success++;
             }
         }
-        for (let i=0;i<Math.max(1,defense);i++) {
+        for (let i=0;i<defense;i++) {
             if (this.map.random.getRandom() > 0.5) {
                 success--;
             }
