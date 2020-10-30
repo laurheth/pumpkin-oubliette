@@ -12,6 +12,7 @@ export interface Position {
 }
 
 export const weightGen = (min:number,peak:number,scale:1|2|3|4|5|6|7|8|9|10,level:number) => {
+    if (level<0) {level=0;}
     if (level<min) {
         return 0;
     }

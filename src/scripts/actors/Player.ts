@@ -5,9 +5,6 @@ import { Position } from '../util/interfaces';
 import { Item } from '../items/Item';
 import { MapNode } from '../map/dataStructures';
 import { Map } from '../map/Map';
-
-import { play as resumePlay } from '../index';
-
 /** The player! */
 export class Player extends Actor {
 
@@ -223,7 +220,8 @@ export class Player extends Actor {
 
     die() {
         this.updateSidebar();
-        this.messenger.addMessage({message:`You die...`})
+        this.messenger.addMessage({message:`You die...`});
+        this.map.nameGen.addGhost(this.name,true);
         this.messenger.clearActions();
         this.messenger.showActions([{
             description: "Try again?",
@@ -231,7 +229,6 @@ export class Player extends Actor {
                 this.messenger.clear();
                 this.messenger.clearActions();
                 this.map.restartGame();
-                resumePlay();
             }
         }]);
         this.alive=false;

@@ -113,7 +113,9 @@ export class Actor {
         if (this.map) {
             this.map.eventManager.remove(this);
             if (this.position) {
-                this.map.getSquare(this.position.x,this.position.y).actor=undefined;
+                if (this.map.getSquare(this.position.x,this.position.y)) {
+                    this.map.getSquare(this.position.x,this.position.y).actor=undefined;
+                }
                 this.position=undefined;
             }
         }
@@ -179,7 +181,13 @@ export class Actor {
     }
 
     die() {
-        this.messenger.addMessage({message:`${this.name} the ${this.title} dies!`})
+        if (this.title !== 'ghost') {
+            this.messenger.addMessage({message:`${this.name} the ${this.title} dies!`})
+            this.map.nameGen.addGhost(this.name);
+        }
+        else {
+            this.messenger.addMessage({message:`${this.name} the ${this.title} has been laid to rest!`})
+        }
         this.remove();
     }
 

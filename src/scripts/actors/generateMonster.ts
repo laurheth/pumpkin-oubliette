@@ -165,7 +165,7 @@ const attackYou = (name:string, title:string, map:Map,success?:string|Array<stri
 }
 
 /** Generate monster */
-export const generateMonster = (map: Map,danger?:number)=>{
+export const generateMonster = (map: Map,danger?:number):Monster=>{
     if (!danger) {danger=1;}
     const messenger = map.messenger;
     const eventManager = map.eventManager;
@@ -189,7 +189,7 @@ export const generateMonster = (map: Map,danger?:number)=>{
             option:"dragon"
         },
         {
-            weight:weightGen(15,25,2,danger),
+            weight:weightGen(10,30,3,danger),
             option:"ghost"
         },
         {
@@ -201,7 +201,6 @@ export const generateMonster = (map: Map,danger?:number)=>{
             option:"cat"
         }
     ];
-
     const monsterType = map.random.getWeightedElement(odds);
     let name:string;
     let title:string;
@@ -237,27 +236,33 @@ export const generateMonster = (map: Map,danger?:number)=>{
             ]);
             break;
         case "ghost":
-            name = map.nameGen.getName({suffix:'ghost'});
+            name = map.nameGen.getGhostName();
             title = 'ghost'
-            newMonster = new Monster({
-                art:'👻',
-                name:name,
-                title:title,
-                messenger:messenger,
-                attitude:'hostile',
-                actionsOn:[
-                    attackMe(name,title,map,['magic'],'Enchant',4,6,4),
-                    attackMe(name,title,map,['hammer'],'Hammer',1,2,-2),
-                    attackMe(name,title,map,['knife'],'Stab',1,2,-2),
-                    attackMe(name,title,map,[],'Attack',1,1,-4)
-                ],
-                health:10,
-                attack:5,
-                defense:5,
-            },10,1.1,[
-                attackYou(name,title,map,[`${name} saps your strength!`,`${name} coexists with you in a spooky way!`],`${name} swings an ethereal hand at you, but you avoid the attack!`,3,0,1),
-                attackYou(name,title,map,[`${name} moans spookily!`,`${name} screams! Your hair stands up!`],`${name} cries out! You hold steady.`,2,1,4),
-            ]);
+            // Only make a ghost if there's someone to be a ghost of
+            if (name) {
+                newMonster = new Monster({
+                    art:'👻',
+                    name:name,
+                    title:title,
+                    messenger:messenger,
+                    attitude:'hostile',
+                    actionsOn:[
+                        attackMe(name,title,map,['magic'],'Enchant',4,6,4),
+                        attackMe(name,title,map,['hammer'],'Hammer',1,2,-2),
+                        attackMe(name,title,map,['knife'],'Stab',1,2,-2),
+                        attackMe(name,title,map,[],'Attack',1,1,-4)
+                    ],
+                    health:10,
+                    attack:5,
+                    defense:5,
+                },10,1.1,[
+                    attackYou(name,title,map,[`${name} saps your strength!`,`${name} coexists with you in a spooky way!`],`${name} swings an ethereal hand at you, but you avoid the attack!`,3,0,1),
+                    attackYou(name,title,map,[`${name} moans spookily!`,`${name} screams! Your hair stands up!`],`${name} cries out! You hold steady.`,2,1,4),
+                ]);
+            }
+            else {
+                return generateMonster(map,danger-2);
+            }
             break;
         case "cat":
             name = map.nameGen.getName({});

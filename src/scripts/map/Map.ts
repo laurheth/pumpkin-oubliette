@@ -14,6 +14,9 @@ import { NameGen } from '../actors/nameGen';
 import { generateDoodad } from '../actors/generateDoodad';
 import { roomFlavour, hallFlavour } from './roomFlavour';
 
+import { play as resumePlay } from '../index';
+
+// Try to import twemoji, but if it breaks, skip it
 let twemoji:{parse:(str:string)=>string};
 try {
     twemoji=require('twemoji');
@@ -73,6 +76,8 @@ export class Map {
 
         // Make a new level
         this.newLevel(parameters);
+
+        this.startGameMessages();
     };
 
     get pathFinder() {
@@ -144,6 +149,7 @@ export class Map {
                 height: 40,
                 level:1
             });
+        this.startGameMessages();
     };
 
     /** Get the next level */
@@ -162,6 +168,59 @@ export class Map {
         }
 
         this.newLevel(params);
+    };
+
+    /** Start game message */
+    startGameMessages(newPlayerName?:string) {
+        let trackModal=false;
+        if (!newPlayerName) {
+            newPlayerName = this.nameGen.getName({});
+            this.nameGen.clearNames();
+        }
+        this.player.name = newPlayerName;
+        this.player.setDefaults();
+        this.player.updateSidebar();
+        this.messenger.message({
+            heading:"The Pumpkin Oubliette",
+            maintext:`Welcome to the Pumpkin Oubliette! Your name is ${newPlayerName}. You ordered a package recently, but the address was wrong and it got misdelivered. Tracking indicates that it was delivered to somewhere, deep within this dark dungeon. Will you be able to find it?`
+        },[
+            {
+                description:"Begin your quest...",
+                callback:()=>{
+                    if (trackModal) {
+                        return;
+                    }
+                    const square = this.getSquare(this.entrance.x,this.entrance.y);
+                    if (square && square.location) {
+                        this.messenger.setHeading(square.location.name);
+                        this.messenger.clear();
+                        this.messenger.addMessage({message:square.location.description});
+                    }
+                    resumePlay();
+                }
+            },
+            {
+                description:"Choose a different name.",
+                callback:()=>{
+                    if (trackModal) {
+                        return;
+                    }
+                    trackModal=true;
+                    const nameModal:HTMLDivElement = document.querySelector('#modal');
+                    nameModal.style.display='flex';
+                    const input:HTMLInputElement = document.querySelector('#nameInput');
+                    input.value = newPlayerName;
+                    input.focus();
+                    const form:HTMLFormElement = document.querySelector('form');
+                    form.addEventListener('submit',(e)=>{
+                        e.preventDefault();
+                        nameModal.style.display='none';
+                        this.startGameMessages(input.value);
+                        trackModal=false;
+                    })
+                }
+            }
+        ])
     };
 
     /** Test to identify exit stairs (TODO potentially expand to other important locations) */

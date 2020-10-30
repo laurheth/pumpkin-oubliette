@@ -71,8 +71,6 @@ class Game {
         }, this.display, this.random, this.player,this.messenger,this.eventManager, this.nameGen);
 
         this.map.drawMap();
-
-        this.play();
     }
 
     async play() {

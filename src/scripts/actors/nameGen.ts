@@ -50,12 +50,17 @@ const suffixes = [
 export class NameGen {
     private names:Array<string>;
     private random:Random;
+
+    private ghostNames:Array<string>;
+
     constructor(random: Random) {
         this.random=random;
         this.names=[];
+        this.ghostNames=[];
     }
 
     getName(params:{prefix?:string, suffix?:string}) {
+        console.log('ghost names:',this.ghostNames);
         let name;
         let attempts=0;
         do {
@@ -67,7 +72,25 @@ export class NameGen {
         return name;
     }
 
+    getGhostName() {
+        if (this.ghostNames.length>0) {
+            return this.ghostNames.shift();
+        }
+        else {
+            return "";
+        }
+    }
+
     clearNames() {
         this.names=[];
+    }
+
+    addGhost(name:string,priority=false) {
+        if (priority) {
+            this.ghostNames.unshift(name);
+        }
+        else {
+            this.ghostNames.push(name);
+        }
     }
 }
