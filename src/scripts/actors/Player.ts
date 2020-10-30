@@ -3,6 +3,8 @@ import { Goal } from './ActorInterfaces';
 import { Messenger, Action } from '../messages/Messenger';
 import { Position } from '../util/interfaces';
 import { Item } from '../items/Item';
+import { MapNode } from '../map/dataStructures';
+import { Map } from '../map/Map';
 
 /** The player! */
 export class Player extends Actor {
@@ -30,6 +32,8 @@ export class Player extends Actor {
         betrayals:number,
         pets:number,
     }
+
+    private currentMapNode:MapNode;
 
     constructor(messenger: Messenger, sideBar: HTMLDivElement) {
         super({
@@ -199,7 +203,7 @@ export class Player extends Actor {
         this.updateSidebar();
         this.messenger.addMessage({message:`You die...`})
         this.messenger.clearActions();
-        this.messenger.addActionList('death',[{
+        this.messenger.showActions([{
             description: "Try again?",
             callback:()=>console.log('Meowdy pardner')
         }]);
@@ -325,5 +329,23 @@ export class Player extends Actor {
         else {
             this.mood="Ecstatic";
         }
+    }
+
+    /** Additional details for set position */
+    setPosition(position: Position, map?:Map): boolean {
+        const success = super.setPosition(position,map);
+        // Update some map node information
+        if (success && this.position && this.map) {
+            const square = this.map.getSquare(this.position.x,this.position.y);
+            const newLocation = square.location;
+            if (newLocation) {
+                this.messenger.setHeading(newLocation.name);
+                if (newLocation !== this.currentMapNode) {
+                    this.currentMapNode = newLocation;
+                    this.messenger.addMessage({message:newLocation.description});
+                }
+            }
+        }
+        return success;
     }
 }

@@ -12,6 +12,7 @@ import { generateMonster } from '../actors/generateMonster';
 import { PathFinder, FOV } from '../toolkit/toolkit';
 import { NameGen } from '../actors/nameGen';
 import { generateDoodad } from '../actors/generateDoodad';
+import { roomFlavour, hallFlavour } from './roomFlavour';
 
 /** Map class */
 export class Map {
@@ -294,15 +295,36 @@ export class Map {
         this.entrance = startRoom.position;
         this.exit = endRoom.position;
 
-        this.player.setPosition(this.entrance, this);
-        
-        // const item = new Item("Bag of peanuts","food",this,10,"You are out of peanuts!");
-        // const item2 = new Item("Jar of blood","blood",this,10,"You are out of blood!");
-        // const item3 = new Item("Bloody Mary (beverage)",["food","blood"],this,10,"You are out of alcohol!");
-        // item3.pickUp(this.player);
-        // item.pickUp(this.player);
-        // item2.pickUp(this.player);
+        // Name all rooms and hallways
+        const hallwayNames = [...hallFlavour];
+        const roomNames = [...roomFlavour];
+        // Name the rooms
+        this.rooms.forEach(room=>{
+            // Refill the array if it empties
+            if (roomNames.length===0) {roomFlavour.forEach(flavour=>roomNames.push(flavour))}
+            // Randomized index
+            const randomIndex = this.random.getNumber(0,roomNames.length-1);
+            // Apply to the room
+            room.name = roomNames[randomIndex].name;
+            room.description = roomNames[randomIndex].description;
+            // Remove from the list to avoid repeats
+            roomNames.splice(randomIndex,1);
+        });
 
+        // Now name the halls
+        this.hallways.forEach(hall=>{
+            // Refill the array if it empties
+            if (hallwayNames.length===0) {hallFlavour.forEach(flavour=>hallwayNames.push(flavour))}
+            // Randomized index
+            const randomIndex = this.random.getNumber(0,hallwayNames.length-1);
+            // Apply to the room
+            hall.name = hallwayNames[randomIndex].name;
+            hall.description = hallwayNames[randomIndex].description;
+            // Remove from the list to avoid repeats
+            hallwayNames.splice(randomIndex,1);
+        });
+        
+        this.player.setPosition(this.entrance, this);
 
         this.getSquare(this.entrance.x, this.entrance.y).parameters = {
             art:'<',
@@ -853,13 +875,15 @@ export class Map {
             console.log(toRemove);
             options = options.filter((option,index)=>!toRemove.includes(index));
             // Some final postprocessing to handle hallways with only two connections
-            options.forEach(option=>{
-                if (option.node instanceof Hallway && option.node.connections.length===2) {
-                    option.midPosition = {...option.position};
-                    option.position = option.node.connections.filter(con=>con!==node)[0].position;
-                }
-            });
+            // options.forEach(option=>{
+            //     if (option.node instanceof Hallway && option.node.connections.length===2) {
+            //         option.midPosition = {...option.position};
+            //         option.position = option.node.connections.filter(con=>con!==node)[0].position;
+            //     }
+            // });
+            options.forEach(option=>option.angle=(option.angle - 20 + 360) % 360);
             options.sort((b,a)=>b.angle - a.angle);
+            console.log(options);
             return options;
         }
         return [];
