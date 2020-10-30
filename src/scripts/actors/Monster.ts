@@ -61,7 +61,16 @@ export class Monster extends Actor {
         /** Sleep. Maybe jitter a bit */
         if (this.awake<0 || !this.map) {
             this.currentGoal=undefined;
+            // Wander through the dungeon
+            if (this.behaviours.includes("wanders") && !this.currentGoal) {
+                this.currentGoal = {
+                    target:this.map.getRandomRoom(),
+                    distance:0
+                }
+            }
+            // Jitter a bit
             if (!this.behaviours.includes("sleeps") && this.distanceToPlayer() < 10) {
+                this.currentGoal=undefined;
                 const steps = [this.map.random.getNumber(-1,1),this.map.random.getNumber(-1,1)];
                 this.step(steps[0],steps[1]);
             }

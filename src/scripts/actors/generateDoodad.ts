@@ -189,7 +189,7 @@ export const generateDoodad = (map: Map,danger?:number)=>{
                         },
                         map)
                 ],
-                seeString:"You see here a bag of peanuts."
+                seeString:"A crystal ball sits by the wall. It glows with magical power."
             });
             break;
         case "fountain":

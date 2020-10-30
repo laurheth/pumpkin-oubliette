@@ -255,7 +255,8 @@ export const generateMonster = (map: Map,danger?:number):Monster=>{
                     health:10,
                     attack:5,
                     defense:5,
-                },10,1.1,[
+                    behaviours:["wanders"]
+                },16,1.1,[
                     attackYou(name,title,map,[`${name} saps your strength!`,`${name} coexists with you in a spooky way!`],`${name} swings an ethereal hand at you, but you avoid the attack!`,3,0,1),
                     attackYou(name,title,map,[`${name} moans spookily!`,`${name} screams! Your hair stands up!`],`${name} cries out! You hold steady.`,2,1,4),
                 ]);
