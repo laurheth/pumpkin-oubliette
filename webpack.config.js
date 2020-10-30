@@ -10,8 +10,8 @@ const assets='assets';
 
 // App title
 const title='The Pumpkin Oubliette';
-const shortName = title;
-const description = title;
+const shortName = 'Pumpkin Oubliette';
+const description = 'Journey into a deep dark dungeon and meet some very dangerous but cute pumpkins.';
 
 module.exports = {
     // Entrypoint in ./src/scripts/index.ts
