@@ -153,6 +153,10 @@ export const generateDoodad = (map: Map,danger?:number)=>{
             option:"fountain"
         },
         {
+            weight:1,
+            option:"milk"
+        },
+        {
             weight:(danger > 8) ? 1 : 0,
             option:"magic"
         }
@@ -287,6 +291,27 @@ export const generateDoodad = (map: Map,danger?:number)=>{
                 seeString:"There's a car here."
             })
             break;
+        case "milk":
+            newDoodad = new Actor({
+                art:"🍼",
+                name:"Milk",
+                map:map,
+                messenger:messenger,
+                actionsOn:[
+                    consumeMe(
+                        "Bottle of milk",
+                        ["milk"],
+                        "Drink some milk.",
+                        "You drink some milk",
+                        "You are out of milk!",
+                        3,"Pick up the bottle of milk",
+                        "You found some more milk, and combine the bottle.",
+                        (performer)=>performer.health+=2,
+                        map)
+                ],
+                seeString:"There's a bottle of milk here."
+            })
+            break;
         case "coffee":
             newDoodad = new Actor({
                 art:"☕️",
@@ -300,7 +325,7 @@ export const generateDoodad = (map: Map,danger?:number)=>{
                         "Drink the coffee.",
                         "You drink the coffee",
                         "You are out of coffee!",
-                        4,"Pick up the cup of coffee",
+                        3,"Pick up the cup of coffee",
                         "You found some more coffee, and combine the cups.",
                         (performer)=>performer.health+=2,
                         map)
@@ -362,7 +387,7 @@ export const generateDoodad = (map: Map,danger?:number)=>{
                         "Eat a peanut.",
                         "You eat a peanut",
                         "You are out of peanuts!",
-                        4,"Pick up the bag of peanuts",
+                        3,"Pick up the bag of peanuts",
                         "You pick up some more peanuts and combine the bags.",
                         (performer)=>performer.health+=2,
                         map)

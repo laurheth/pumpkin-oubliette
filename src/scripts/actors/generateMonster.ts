@@ -280,7 +280,7 @@ export const generateMonster = (map: Map,danger?:number)=>{
                 messenger:messenger,
                 attitude:'hostile',
                 actionsOn:[
-                    feedMe(name,title,map),
+                    feedMe(name,title,map,"coffee"),
                     petMe(name,title,map,"Pet",["raise their claws","pinch happily","make a weird, but happy, gurgling noise"]),
                     attackMe(name,title,map,['hammer'],'Smash',1,3,2),
                     attackMe(name,title,map,['knife'],'Stab',1,2,2),
@@ -303,7 +303,7 @@ export const generateMonster = (map: Map,danger?:number)=>{
                 messenger:messenger,
                 attitude:'hostile',
                 actionsOn:[
-                    feedMe(name,title,map,"coffee",['They drink it happily!','They chug it and make happy noises!','They accept your offering!']),
+                    feedMe(name,title,map,"milk",['They drink it happily!','They chug it and make happy noises!','They accept your offering!']),
                     petMe(name,title,map,"Pet",["rattle their teeth","roll around","wobble happily"]),
                     attackMe(name,title,map,['hammer'],'Smash',1,3,2),
                     attackMe(name,title,map,['knife'],'Stab',1,2,0),

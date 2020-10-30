@@ -33,7 +33,7 @@ export class Map {
 
     readonly player: Player;
 
-    readonly pathFinder: PathFinder;
+    private _pathFinder: PathFinder;
 
     private fov: FOV;
 
@@ -54,14 +54,37 @@ export class Map {
         this.eventManager = eventManager;
         this.nameGen = nameGen;
         
+        // Field of view
+        this.fov = new FOV((position:Array<number>)=>{
+            const square = this.getSquare(position[0],position[1]);
+            if (square) {square.visible=true;}
+            return square && square.seeThrough;
+        },8)
+
+        // Make a new level
+        this.newLevel(parameters);
+    };
+
+    get pathFinder() {
+        return this._pathFinder;
+    }
+
+    /** New level. Method to start a new level, either going back to level 1 or going to a lower floor */
+    newLevel(parameters: MapParams) {
         // Parameters and defaults
-        const {width=30, height=30, source, level=1, theme="default", ...rest} = parameters;
+        const {width=30, height=30, source, level=1, theme="default", density=0.5,...rest} = parameters;
         let generator = (rest.generator) ? rest.generator : "default";
 
         this.level=level;
 
-        // Boot up the pathfinder
-        this.pathFinder = new PathFinder({
+        // Check if a source was provided. If not, generator should be set to default
+        // TODO: also check if source even exists and is valid
+        if (!source && generator === "json") {
+            generator = "default";
+        }
+
+        // Boot up the pathfinder with adusted defaults for this level
+        this._pathFinder = new PathFinder({
             canPass: (pos:Array<number>)=>{
                 const square = this.getSquare(pos[0],pos[1]);
                 return square && square.passable;
@@ -76,19 +99,6 @@ export class Map {
             }
         });
 
-        // Field of view
-        this.fov = new FOV((position:Array<number>)=>{
-            const square = this.getSquare(position[0],position[1]);
-            if (square) {square.visible=true;}
-            return square && square.seeThrough;
-        },8)
-
-        // Check if a source was provided. If not, generator should be set to default
-        // TODO: also check if source even exists and is valid
-        if (!source && generator === "json") {
-            generator = "default";
-        }
-
         // Prepare the map
         this.width = Math.max(width,1);
         this.height = Math.max(height,1);
@@ -99,8 +109,37 @@ export class Map {
 
         // Generate
         if (generator === "default") {
-            this.generateMap(generator, theme,0.5);
+            this.generateMap(generator, theme,density);
         }
+        this.drawMap();
+    };
+
+    /** Method to restart the game */
+    restartGame() {
+        this.player.setDefaults();
+        this.newLevel(
+            {
+                width: 40,
+                height: 40,
+            });
+    };
+
+    /** Get the next level */
+    nextLevel(level:number) {
+        // Randomize the parameters a bit
+        const targetSquares = 1600 + 200 * (level-1);
+        const density = this.random.getNumber(0.4,0.8);
+        const dim = Math.floor(Math.sqrt(targetSquares / density));
+        
+        // Construct the params object
+        const params:MapParams = {
+            width: dim,
+            height: dim,
+            density: density,
+            level:level
+        }
+
+        this.newLevel(params);
     };
 
     /** Set up the starting squares and fill up the array of mapData */
@@ -189,16 +228,6 @@ export class Map {
             }
         }
         this.drawMap();
-    }
-
-    /** Get travel options */
-    travelOptions(node:MapNode, position:Position) {
-        // Current node is a room
-        if (node instanceof Room) {
-            node.connections.forEach(otherNode=>{
-
-            });
-        }
     }
 
     /** Generate the map */

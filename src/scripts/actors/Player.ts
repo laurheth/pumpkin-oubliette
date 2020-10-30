@@ -42,9 +42,6 @@ export class Player extends Actor {
             art: '@',
             messenger: messenger,
         });
-        this.maxHealth=10;
-        this.health=10;
-        this.moodNum=0;
         this.sideBar = sideBar;
         this.inventory = [];
         this.sideBarElements = {
@@ -54,13 +51,23 @@ export class Player extends Actor {
             mood: sideBar.querySelector('#playerMood'),
             inventory: sideBar.querySelector('#playerInventory'),
         };
+        this.setDefaults();
+    };
+
+    setDefaults() {
+        this.maxHealth=10;
+        this.health=10;
+        this.moodNum=0;
         this.record={
             kills:0,
             friendships:0,
             betrayals:0,
             pets:0
         };
-    };
+        this.attack=2;
+        this.defense=2;
+        this.inventory=[];
+    }
     
     /** Player turn */
     async act() {
@@ -301,7 +308,6 @@ export class Player extends Actor {
 
     /** Update mood */
     updateMood(adjustment?:number){
-        console.log('adjustment',adjustment, this.moodNum);
         if (adjustment) {
             this.moodNum -= adjustment;
         }

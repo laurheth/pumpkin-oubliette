@@ -19,4 +19,5 @@ export interface MapParams {
     theme?: theme;
     width?: number;
     height?: number;
+    density?: number;
 }
