@@ -49,7 +49,7 @@ h1,h2,h3,p {
         .wrapper {
             width:100%;
             max-width:800px;
-            margin-left:auto;
+            margin: 0 auto;
         }
         button {
             border: none;
@@ -66,3 +66,12 @@ h1,h2,h3,p {
         }
     }
 }
+
+// Make twemoji's fit
+img.emoji {
+    display:inline-block;
+    height: 1em;
+    width: 1em;
+    margin: 0 .05em 0 .1em;
+    vertical-align: -0.1em;
+ }

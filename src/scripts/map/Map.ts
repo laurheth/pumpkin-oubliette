@@ -14,6 +14,16 @@ import { NameGen } from '../actors/nameGen';
 import { generateDoodad } from '../actors/generateDoodad';
 import { roomFlavour, hallFlavour } from './roomFlavour';
 
+let twemoji:{parse:(str:string)=>string};
+try {
+    twemoji=require('twemoji');
+}
+catch {
+    twemoji={
+        parse:(str:string)=>str
+    }
+}
+
 /** Map class */
 export class Map {
     /** Object containing the map data */
@@ -103,6 +113,7 @@ export class Map {
         this.width = Math.max(width,1);
         this.height = Math.max(height,1);
         this.allocateMap();
+        // this.display.allocateDisplay();
 
         this.rooms = [];
         this.hallways = [];
@@ -131,6 +142,7 @@ export class Map {
             {
                 width: 40,
                 height: 40,
+                level:1
             });
     };
 
@@ -230,8 +242,17 @@ export class Map {
             for (let y=0;y<this.height;y++) {
                 const square = this.getSquare(x,y);
                 const art = square.art;
+                let artStr = art.art;
+
+                try {
+                    artStr = twemoji.parse(artStr);
+                }
+                catch {
+                    // Eh, stick with default
+                }
+
                 this.display.setTile(x,y,{
-                    content:art.art,
+                    content:artStr,
                     foreground:art.foreground,
                     background:art.background
                 });
@@ -406,7 +427,7 @@ export class Map {
         // Place items and monsters
         this.nameGen.clearNames();
         this.rooms.forEach(room=>{
-            const totalLevel = this.level + this.nodeDistance(startRoom,room);
+            const totalLevel = this.level + this.nodeDistance(startRoom,room) + this.player.getViolenceRating();
             if (room.validItemSpots.length>0) {
                 const randomSpot: Position = this.random.getRandomElement(room.validItemSpots);
                 const newDoodad = generateDoodad(this,totalLevel)

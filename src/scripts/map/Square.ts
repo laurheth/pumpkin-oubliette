@@ -19,7 +19,7 @@ export class Square {
     // items?
     constructor(parameters: SquareParams) {
         this.parameters = parameters;
-        this.memoryArt = {art:'',foreground:'gray',background:'black'};
+        this.memoryArt = {art:' ',foreground:'gray',background:'black'};
         this.visible = false;
         this.isOpen=true;
     }

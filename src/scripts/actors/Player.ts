@@ -6,6 +6,8 @@ import { Item } from '../items/Item';
 import { MapNode } from '../map/dataStructures';
 import { Map } from '../map/Map';
 
+import { play as resumePlay } from '../index';
+
 /** The player! */
 export class Player extends Actor {
 
@@ -25,6 +27,8 @@ export class Player extends Actor {
     private inventory:Array<Item>;
 
     public alive:boolean;
+
+    private mortalPeril:boolean;
 
     private record: {
         kills:number,
@@ -67,6 +71,8 @@ export class Player extends Actor {
         this.attack=2;
         this.defense=2;
         this.inventory=[];
+        this.alive=true;
+        this.mortalPeril=false;
     }
     
     /** Player turn */
@@ -74,6 +80,14 @@ export class Player extends Actor {
         // Check health...
         if (this.health > this.maxHealth) {
             this.health = Math.min(this.health,this.maxHealth);
+        }
+        else if (this.health < this.maxHealth/2 && !this.mortalPeril) {
+            this.mortalPeril=true;
+            this.messenger.addMessage({message:"You are below half health!"});
+        }
+        else if (this.health > this.maxHealth/2 && this.mortalPeril) {
+            this.mortalPeril=false;
+            this.messenger.addMessage({message:"You feel somewhat healthier."});
         }
         this.updateMood();
         this.updateSidebar();
@@ -213,7 +227,12 @@ export class Player extends Actor {
         this.messenger.clearActions();
         this.messenger.showActions([{
             description: "Try again?",
-            callback:()=>console.log('Meowdy pardner')
+            callback:()=>{
+                this.messenger.clear();
+                this.messenger.clearActions();
+                this.map.restartGame();
+                resumePlay();
+            }
         }]);
         this.alive=false;
         this.map.drawMap();
@@ -354,5 +373,11 @@ export class Player extends Actor {
             }
         }
         return success;
+    }
+
+    /** A rating of how violent the player is */
+    getViolenceRating():number {
+        const baseNum = Math.max(0,3*this.record.kills - this.record.friendships - this.record.pets);
+        return Math.ceil(Math.sqrt(baseNum));
     }
 }

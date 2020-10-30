@@ -83,3 +83,5 @@ class Game {
 }
 
 const game = new Game();
+
+export const play = async ()=>await game.play();

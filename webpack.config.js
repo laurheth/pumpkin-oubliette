@@ -131,5 +131,8 @@ module.exports = {
             pageHeader: title,
             template: `${path.resolve(__dirname, src)}/index.html`
         })
-    ]
+    ],
+    externals: {
+        twemoji:'twemoji'
+    }
 };

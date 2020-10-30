@@ -189,8 +189,12 @@ export const generateMonster = (map: Map,danger?:number)=>{
             option:"dragon"
         },
         {
-            weight:weightGen(12,15,1,danger),
+            weight:weightGen(15,25,2,danger),
             option:"ghost"
+        },
+        {
+            weight:weightGen(10,15,2,danger),
+            option:"squirrel"
         },
         {
             weight:1,
@@ -202,6 +206,36 @@ export const generateMonster = (map: Map,danger?:number)=>{
     let name:string;
     let title:string;
     switch(monsterType) {
+        case "squirrel":
+            name = map.nameGen.getName({suffix:"rrel"});
+            title = 'giant squirrel'
+            newMonster = new Monster({
+                art:'🐿',
+                name:name,
+                title:title,
+                messenger:messenger,
+                attitude:'hostile',
+                actionsOn:[
+                    feedMe(name,title,map,"peanut",["They accept your offering and add it to their hoard!"]),
+                    petMe(name,title,map,"Pet"),
+                    attackMe(name,title,map,['hammer'],'Hammer',1,3,2),
+                    attackMe(name,title,map,['knife'],'Stab',1,3,2),
+                    attackMe(name,title,map)
+                ],
+                health:12,
+                attack:6,
+                defense:6,
+            },8,2,[
+                attackYou(name,title,map,[`${name} nibbles you!`,`${name} claws you!`],`${name} tries to nibble you, but you avoid the attack!`,3,1,1),
+                attackYou(name,title,map,[
+                    `${name} throws a peanut at you!`,
+                    `${name} throws a peanut at you! Ouch!`,
+                ],[
+                    `${name} throws a peanut at you, but misses!`,
+                    `${name} throws a peanut at you, but you dodge it!`,
+                ],2,0,3)
+            ]);
+            break;
         case "ghost":
             name = map.nameGen.getName({suffix:'ghost'});
             title = 'ghost'
@@ -213,7 +247,7 @@ export const generateMonster = (map: Map,danger?:number)=>{
                 attitude:'hostile',
                 actionsOn:[
                     attackMe(name,title,map,['magic'],'Enchant',4,6,4),
-                    attackMe(name,title,map,['hammer'],'Smash',1,2,-2),
+                    attackMe(name,title,map,['hammer'],'Hammer',1,2,-2),
                     attackMe(name,title,map,['knife'],'Stab',1,2,-2),
                     attackMe(name,title,map,[],'Attack',1,1,-4)
                 ],
@@ -257,7 +291,7 @@ export const generateMonster = (map: Map,danger?:number)=>{
                 actionsOn:[
                     feedMe(name,title,map,"gold",["They accept your offering and add it to their hoard!"]),
                     petMe(name,title,map,"Pet"),
-                    attackMe(name,title,map,['hammer'],'Smash',1,3,2),
+                    attackMe(name,title,map,['hammer'],'Hammer',1,3,2),
                     attackMe(name,title,map,['knife'],'Stab',1,3,2),
                     attackMe(name,title,map)
                 ],
@@ -281,7 +315,7 @@ export const generateMonster = (map: Map,danger?:number)=>{
                     feedMe(name,title,map,"food",undefined,-2),
                     feedMe(name,title,map,"coffee",["They drink it up and pinch their claws happily!", "They quaff it enthusiastically!","Nervous at first, they accept your gift!"]),
                     petMe(name,title,map,"Pet",["raise their claws","pinch happily","make a weird, but happy, gurgling noise"]),
-                    attackMe(name,title,map,['hammer'],'Smash',1,3,2),
+                    attackMe(name,title,map,['hammer'],'Hammer',1,3,2),
                     attackMe(name,title,map,['knife'],'Stab',1,2,2),
                     attackMe(name,title,map)
                 ],
@@ -304,7 +338,7 @@ export const generateMonster = (map: Map,danger?:number)=>{
                 actionsOn:[
                     feedMe(name,title,map,"milk",['They drink it happily!','They chug it and make happy noises!','They accept your offering!']),
                     petMe(name,title,map,"Pet",["rattle their teeth","roll around","wobble happily"]),
-                    attackMe(name,title,map,['hammer'],'Smash',1,3,2),
+                    attackMe(name,title,map,['hammer'],'Hammer',1,3,2),
                     attackMe(name,title,map,['knife'],'Stab',1,2,0),
                     attackMe(name,title,map,['magic'],'Enchant',4,-1,4),
                     attackMe(name,title,map)
