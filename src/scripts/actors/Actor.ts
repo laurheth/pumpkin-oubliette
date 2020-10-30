@@ -335,6 +335,7 @@ export class Actor {
         const actionsList:Array<Action> = [];
         if (this.map && this.messenger && this.actionsOn.length>0) {
             if(this.map.getSquare(this.position.x, this.position.y).visible) {
+                this.see();
                 this.actionsOn.forEach(action=>{
                     if (action.condition) {
                         if (typeof action.condition === "string") {

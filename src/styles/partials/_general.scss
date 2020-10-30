@@ -46,5 +46,18 @@ h1,h2,h3,p {
         border-top: 1px solid $borderColor;
         padding: $padding;
         background: $bodyBackground;
+        button {
+            border: none;
+            color: $bodyColor;
+            background: inherit;
+            text-decoration: underline;
+            transition: color 0.3s;
+            &:hover,&:focus {
+                color: $hoverColor;
+            }
+        }
+        ul, p {
+            margin: 10px 0;
+        }
     }
 }

@@ -116,7 +116,6 @@ export class Messenger {
                 description:"Show other actions.",
                 callback:()=>this.showActions(this.actions.index),
             });
-            console.log(key);
             this.actions[key] = actions;
             if (!this.actions.index) {this.actions.index=[];}
             this.actions.index.push({
@@ -131,6 +130,9 @@ export class Messenger {
         this.actions = {
             index:[],
         };
+        while(this.actionListElement.lastElementChild) {
+            this.actionListElement.removeChild(this.actionListElement.lastElementChild);
+        }
     }
 
     /** Set current heading */
