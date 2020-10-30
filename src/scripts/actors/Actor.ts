@@ -2,7 +2,7 @@ import { ActorParams, Pronouns, attitude, Goal, ActorAction } from './ActorInter
 import { Player } from './Player';
 import { Art, Position } from '../util/interfaces';
 import { Map } from '../map/Map';
-import { Messenger } from 'scripts/messages/Messenger';
+import { Messenger, Action } from 'scripts/messages/Messenger';
 
 export const allActors:Array<Actor> = [];
 
@@ -332,6 +332,7 @@ export class Actor {
     getActionsOn(performer:Actor,performerTags:Array<string>) {
         // Include attitude in tags
         const tags = [...performerTags, this.attitude];
+        const actionsList:Array<Action> = [];
         if (this.map && this.messenger && this.actionsOn.length>0) {
             if(this.map.getSquare(this.position.x, this.position.y).visible) {
                 this.actionsOn.forEach(action=>{
@@ -343,7 +344,7 @@ export class Actor {
                             if (action.condition.some(condition=>!tags.includes(condition))) {return;}
                         }
                     }
-                    this.messenger.addAction({
+                    actionsList.push({
                         description: action.description,
                         callback: ()=>{
                             performer.currentGoal = {
@@ -355,6 +356,14 @@ export class Actor {
                         },
                     });
                 });
+            }
+        }
+        if (actionsList.length>0) {
+            if (this instanceof Player) {
+                this.messenger.addActionList('Inventory',actionsList);
+            }
+            else {
+                this.messenger.addActionList(`${this.name}${(this.title) ? " the " + this.title :""}`,actionsList);
             }
         }
     }

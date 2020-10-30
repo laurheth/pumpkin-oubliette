@@ -15,7 +15,12 @@ const prefixes = [
     "An",
     "Dan",
     "Reg",
-    "Char"
+    "Char",
+    "Greg",
+    "Cal",
+    "Ein",
+    "Ja",
+    "Chri",
 ];
 
 const suffixes = [
@@ -33,7 +38,12 @@ const suffixes = [
     "iel",
     "ron",
     "inald",
-    "lie"
+    "lie",
+    "ory",
+    "vin",
+    "stein",
+    "son",
+    "stine"
 ]
 
 /** Name generator */
@@ -53,7 +63,7 @@ export class NameGen {
             const suffix = (params.suffix) ? params.suffix : this.random.getRandomElement(suffixes);
             name = prefix+ suffix;
             attempts++;
-        } while (this.names.includes(name) && attempts<10);
+        } while (this.names.includes(name) && attempts<20);
         return name;
     }
 

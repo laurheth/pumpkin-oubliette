@@ -1,6 +1,6 @@
 import { Actor, allActors } from './Actor';
 import { Goal } from './ActorInterfaces';
-import { Messenger } from '../messages/Messenger';
+import { Messenger, Action } from '../messages/Messenger';
 import { Position } from '../util/interfaces';
 import { Item } from '../items/Item';
 
@@ -75,7 +75,7 @@ export class Player extends Actor {
                 this.finishTurn = resolve;
             });
 
-            // Determine directions the play can travel to
+            // Determine directions the play can travel to, and all available actions
             const travelOptions = this.map.getTravelOptions(this.position);
             allActors.forEach(actor=>{
                 actor.getActionsOn(this,this.getAllTags())
@@ -83,8 +83,9 @@ export class Player extends Actor {
             console.log('Current node', this.map.getSquare(this.position.x,this.position.y).location, this.position);
             console.log('travelOptions', travelOptions);
             if (travelOptions.length>0) {
+                const travelActions:Array<Action> = [];
                 travelOptions.forEach(option=>{
-                    this.messenger.addAction({
+                    travelActions.push({
                         description:option.direction,
                         callback:()=>{
                             this.currentGoal = {
@@ -95,22 +96,29 @@ export class Player extends Actor {
                         }
                     });
                 });
+                if (travelActions.length>0) {
+                    this.messenger.addActionList('Travel',travelActions);
+                }
             }
 
             // Add to the messages
             // this.messenger.addMessage({message:"Testing?"});
     
             // Display current messages and actions
-            this.messenger.generate();
+            // this.messenger.generate();
+            this.messenger.showActions();
     
             // Wait for the player's selection before advancing
             await playerActionPromise;
+            // Clear old messages
             this.messenger.clear();
+            // Clear old actions list
+            this.messenger.clearActions();
         }
         // Framerate while executing an actions
         else {
             await new Promise(resolve=>{
-                setTimeout(()=>resolve(),20);
+                setTimeout(()=>resolve(),100);
             });
         }
         super.act();
@@ -191,13 +199,12 @@ export class Player extends Actor {
         this.updateSidebar();
         this.messenger.addMessage({message:`You die...`})
         this.messenger.clearActions();
-        this.messenger.addAction({
+        this.messenger.addActionList('death',[{
             description: "Try again?",
             callback:()=>console.log('Meowdy pardner')
-        });
+        }]);
         this.alive=false;
         this.map.drawMap();
-        this.messenger.generate();
         this.currentGoal=undefined;
     }
 

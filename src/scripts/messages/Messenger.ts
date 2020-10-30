@@ -1,11 +1,10 @@
-interface Action {
+export interface Action {
     description: string;
     callback: ()=>void;
 }
 
 interface FormattedMessage {
     heading?: string;
-    subtext?: string;
     maintext: string;
 }
 
@@ -17,53 +16,69 @@ interface PartialMessage {
 /** Class to handle sending messages and displaying action options to the user */
 export class Messenger {
 
-    /** The element to print messages to */
+    /** Main container for everything message related */
     private element : HTMLDivElement;
+    /** Where messages are sent to */
+    private messageElement : HTMLParagraphElement;
+    /** Where actions are listed */
+    private actionListElement : HTMLUListElement;
+    /** Where the heading goes */
+    private headingElement : HTMLHeadingElement;
 
     /** Some logic for generating messages from a combination of sources */
-    private partialMessages: Array<PartialMessage>;
-    private actions: Array<Action>;
-    private heading: string;
-    private subHeading: string;
+    private actions: {[key:string]:Array<Action>};
 
     constructor(element:HTMLDivElement) {
         this.element = element;
-        this.partialMessages = [];
-        this.actions = [];
+        this.messageElement = element.querySelector('#messagesGoHere');
+        this.actionListElement = element.querySelector('#actionsList');
+        this.headingElement = element.querySelector('#headingGoesHere');
+        this.actions = {};
         this.clear();
     };
 
     /** Update the message display */
-    message(message:string|FormattedMessage, actions:Array<Action>) {
+    message(message:string|FormattedMessage, actions?:Array<Action>) {
         // Clear old messages
         this.clear();
 
-        // Now, dispay the new message
+        // Now, display the new message
         if (typeof message === "string") {
-            const paragraph = document.createElement('p');
-            paragraph.textContent = message;
-            this.element.appendChild(paragraph);
+            this.messageElement.textContent = message;
         }
         else {
             if (message.heading) {
-                const heading = document.createElement('h2');
-                heading.textContent = message.heading;
-                this.element.appendChild(heading);
+                this.headingElement.textContent = message.heading;
             }
 
-            if (message.subtext) {
-                const subHeading = document.createElement('h3');
-                subHeading.textContent = message.subtext;
-                this.element.appendChild(subHeading);
-            }
+            this.messageElement.textContent = message.maintext;
+        }
+        this.showActions(actions);
+    };
 
-            const paragraph = document.createElement('p');
-            paragraph.textContent = message.maintext;
-            this.element.appendChild(paragraph);
+    /** Show actions */
+    showActions(actions?:Array<Action>) {
+        console.log('actions object',this.actions);
+        if (!actions) {
+            const allKeys = Object.keys(this.actions);
+            if (allKeys.length===2) {
+                // If only one catagory, just show that
+                actions = this.actions[allKeys.filter(key=>key!=='index')[0]];
+                actions.pop();
+            }
+            // Only inventory and travel; focus on travel, but leave the option to go to inventory
+            else if (allKeys.length===3 && allKeys.includes('Inventory') && allKeys.includes('Travel')) {
+                actions = this.actions.Travel;
+            }
+            else {
+                actions = this.actions.index;
+            }
+        }
+        // Clear the old actions
+        while(this.actionListElement.lastElementChild) {
+            this.actionListElement.removeChild(this.actionListElement.lastElementChild);
         }
 
-        // Next, add on the action options
-        const actionList = document.createElement('ul');
         actions.forEach(action=>{
             const listItem = document.createElement('li');
             const button = document.createElement('button');
@@ -74,67 +89,52 @@ export class Messenger {
             });
 
             listItem.appendChild(button);
-            actionList.appendChild(listItem);
+            this.actionListElement.appendChild(listItem);
         });
-        this.element.appendChild(actionList);
-    };
+    }
 
     /** Clear messages */
     clear() {
         // Empty the old messages
-        while(this.element.lastElementChild) {
-            this.element.removeChild(this.element.lastElementChild);
-        }
+        this.messageElement.textContent="";
     };
 
     /** Add a partial message */
     addMessage(partial: PartialMessage) {
-        if (!partial.importance) {
-            partial.importance = 0;
-        }
-
-        this.partialMessages.push(partial);
+        this.messageElement.textContent += " " + partial.message;
     };
 
-    /** Add a possible action */
-    addAction(action:Action) {
-        this.actions.push(action);
+    /** Add action list */
+    addActionList(key:string,actions:Array<Action>) {
+        // If the key already exists, combine them lists
+        if (key in this.actions) {
+            actions.forEach(action=>this.actions[key].unshift(action));
+        }
+        // Otherwise, add a "return to index" option and then add to the actions object
+        else {
+            actions.push({
+                description:"Show other actions.",
+                callback:()=>this.showActions(this.actions.index),
+            });
+            console.log(key);
+            this.actions[key] = actions;
+            if (!this.actions.index) {this.actions.index=[];}
+            this.actions.index.push({
+                description:key,
+                callback:()=>this.showActions(this.actions[key])
+            })
+        }
     };
 
     /** Clear the actions list */
     clearActions() {
-        this.actions = [];
+        this.actions = {
+            index:[],
+        };
     }
 
     /** Set current heading */
-    setHeading(heading:string, subHeading?:string) {
-        this.heading = heading;
-        this.subHeading = subHeading;
-    };
-
-    /** Generate messages based on the partials given */
-    generate() {
-        // Sort by priority.
-        this.partialMessages.sort((a,b)=>b.importance - a.importance);
-        let message = "";
-        for (let i=0;i<this.partialMessages.length;i++) {
-            if (message.length > 100 && this.partialMessages[i].importance <= 1) {
-                break;
-            }
-            message += `${this.partialMessages[i].message} `;
-        }
-
-        // Display the combined results.
-        this.message({
-            heading: this.heading,
-            subtext: this.subHeading,
-            maintext: message,
-        },this.actions);
-
-        // Purge the old list
-        this.partialMessages=[];
-        this.actions=[];
-        this.heading='';
-        this.subHeading='';
+    setHeading(heading:string) {
+        this.headingElement.textContent = heading;
     };
 }
