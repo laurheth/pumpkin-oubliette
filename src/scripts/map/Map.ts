@@ -14,7 +14,7 @@ import { NameGen } from '../actors/nameGen';
 import { generateDoodad } from '../actors/generateDoodad';
 import { roomFlavour, hallFlavour } from './roomFlavour';
 
-import { play as resumePlay } from '../index';
+import { play as resumePlay, stopPlay } from '../index';
 
 // Try to import twemoji, but if it breaks, skip it
 let twemoji:{parse:(str:string)=>string};
@@ -229,22 +229,52 @@ export class Map {
         const square = this.getSquare(this.exit.x, this.exit.y);
         if (square && square.visible) {
             // Exit is in sight! Add to the actions list
-            this.messenger.addActionList('Exit Stairs',[
-                {
-                    description:"Go down the stairs and exit the level!",
-                    callback:()=>{
-                        this.player.setGoal({
-                            target:{...this.exit},
-                            distance:0,
-                            action:()=>{
-                                this.messenger.addMessage({message:"You go down the stairs..."});
-                                this.nextLevel(this.level+1);
-                            }
-                        });
-                        this.player.finishTurn();
+            if (this.level<10) {
+                this.messenger.addActionList('Exit Stairs',[
+                    {
+                        description:"Go down the stairs and exit the level!",
+                        callback:()=>{
+                            this.player.setGoal({
+                                target:{...this.exit},
+                                distance:0,
+                                action:()=>{
+                                    this.messenger.addMessage({message:"You go down the stairs..."});
+                                    this.nextLevel(this.level+1);
+                                }
+                            });
+                            this.player.finishTurn();
+                        }
                     }
-                }
-            ]);
+                ]);
+            }
+            else {
+                const deliveries = ["limited edition teddy bear","platonic ideal of tacos","wicked good comic book","limited edition aluminum foil ball","box of cookies","new cutting board","new bookshelf","new television","new patio furniture","new oven mitts","limited edition chicken statue","box of candy","ghost costume","nail clippers","new toiler paper","hand sanitizer","boardgame","blanket","cutlery set","water bottle","toothbrush","comb"];
+                const delivery:string = this.random.getRandomElement(deliveries);
+                this.messenger.addActionList('Your misdelivered package, the goal!',[
+                    {
+                        description:"Pick up your package!!",
+                        callback:()=>{
+                            this.player.setGoal({
+                                target:{...this.exit},
+                                distance:0,
+                                action:()=>{
+                                    stopPlay();
+                                    this.messenger.message({
+                                        heading:"You won the game!",
+                                        maintext:`You have found your package! You quickly take a peak inside, and the ${delivery} you ordered is still in there. You've never been so happy in your life. Congratulations!`
+                                    },[{
+                                        description: "Play again?",
+                                        callback:()=>{
+                                            this.restartGame();
+                                        }
+                                    }]);
+                                }
+                            });
+                            this.player.finishTurn();
+                        }
+                    }
+                ]);
+            }
         }
     }
 
@@ -433,7 +463,7 @@ export class Map {
         const endRoom = this.findMostDistantRoom(startRoom);
         
         this.entrance = startRoom.position;
-        this.exit = endRoom.position;
+        this.exit = {...endRoom.position};
 
         // Name all rooms and hallways
         const hallwayNames = [...hallFlavour];
@@ -451,7 +481,12 @@ export class Map {
             roomNames.splice(randomIndex,1);
         });
 
-        endRoom.description += " There is a downwards staircase here!";
+        if (this.level<10) {
+            endRoom.description += " There is a downwards staircase here!";
+        }
+        else {
+            endRoom.description += " Your package is here!";
+        }
 
         // Now name the halls
         this.hallways.forEach(hall=>{
@@ -475,10 +510,19 @@ export class Map {
             passable:true,
         };
 
-        this.getSquare(this.exit.x, this.exit.y).parameters = {
-            art:'>',
-            passable:true,
-        };
+        if (this.level < 10) {
+            this.getSquare(this.exit.x, this.exit.y).parameters = {
+                art:'>',
+                passable:true,
+            };
+        }
+        else {
+            this.getSquare(this.exit.x+1, this.exit.y+1).parameters = {
+                art:'📦',
+                passable:false,
+                seeThrough:true
+            };
+        }
 
         // Postprocessing
         this.postProcessing();
@@ -487,15 +531,12 @@ export class Map {
         this.nameGen.clearNames();
         this.rooms.forEach(room=>{
             const totalLevel = this.level + this.nodeDistance(startRoom,room) + this.player.getViolenceRating();
-            if (room.validItemSpots.length>0) {
+            if (room !== endRoom && room.validItemSpots.length>0) {
                 const randomSpot: Position = this.random.getRandomElement(room.validItemSpots);
                 const newDoodad = generateDoodad(this,totalLevel)
                 newDoodad.setPosition(randomSpot,this);
             }
-            if (room === startRoom) {
-                return;
-            }
-            if (this.random.getRandom()>0.5) {
+            if (room !== startRoom && this.random.getRandom()>0.5) {
                 const newMonster = generateMonster(this,totalLevel);
                 newMonster.setPosition(room.position,this);
             }

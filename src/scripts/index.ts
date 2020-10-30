@@ -40,6 +40,9 @@ class Game {
     /** Name generator */
     nameGen: NameGen;
 
+    /** Stop play? */
+    stop: boolean;
+
     constructor() {
         // Select the important sections
         this.displayContainer = document.querySelector('#displayContainer');
@@ -64,6 +67,8 @@ class Game {
         // Create the player
         this.player = new Player(this.messenger, this.sideBar);
 
+        this.stop=false;
+
         // Generate the map
         this.map = new Map({
             width: 40,
@@ -74,12 +79,17 @@ class Game {
     }
 
     async play() {
-        while (this.player.alive) {
+        while (this.player.alive && !this.stop) {
             await this.eventManager.advance();
         }
+        this.stop=false;
     }
 }
 
 const game = new Game();
 
+/** Resume play */
 export const play = async ()=>await game.play();
+
+/** Stop play */
+export const stopPlay = ()=>game.stop=true;
