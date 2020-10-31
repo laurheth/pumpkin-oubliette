@@ -16,6 +16,10 @@ a {
     }
 }
 
+.grayscale {
+    filter: grayscale(1);
+}
+
 button {
     border: none;
     color: $bodyColor;

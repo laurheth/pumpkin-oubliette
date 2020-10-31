@@ -37,6 +37,7 @@ export interface TileOptions {
     content?: string|HTMLElement;
     background?: string;
     foreground?: string;
+    className?:string;
 }
 
 /** Position on the display */

@@ -391,7 +391,8 @@ export class Map {
                 this.display.setTile(x,y,{
                     content:artStr,
                     foreground:art.foreground,
-                    background:art.background
+                    background:art.background,
+                    className:(!square.visible) ? "grayscale" : ""
                 });
             }
         }

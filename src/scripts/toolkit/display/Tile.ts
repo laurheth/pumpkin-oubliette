@@ -18,6 +18,8 @@ export class Tile {
     private _tileHeight: number;
     private _tileWidth: number;
 
+    private _className: string;
+
     /** Element this tile corresponds to in the DOM */
     readonly element: HTMLDivElement;
 
@@ -42,6 +44,8 @@ export class Tile {
 
         // Set the tile position
         this.position = position;
+
+        this.className = "";
     };
 
     /** Get or set the tile contents */
@@ -127,9 +131,24 @@ export class Tile {
         this.element.style.height = `${newHeight}px`;
     }
 
+    /** Get or set the classname */
+    get className():string {
+        return this._className;
+    }
+
+    set className(newClass:string) {
+        if (this._className && newClass !== this._className && this.element.classList.contains(this._className)) {
+            this.element.classList.remove(this._className);
+        }
+        this._className=newClass;
+        if (newClass) {
+            this.element.classList.add(newClass);
+        }
+    }
+
     /** Set options for the tile */
     setOptions(newOptions: TileOptions) {
-        const {content, background,foreground} = newOptions;
+        const {content, background,foreground,className } = newOptions;
         if (content) {
             this.content = content;
         }
@@ -138,6 +157,9 @@ export class Tile {
         }
         if (foreground) {
             this.foreground = foreground;
+        }
+        if (typeof className === "string") {
+            this.className = className;
         }
     }
 }

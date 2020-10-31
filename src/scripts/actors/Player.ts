@@ -68,6 +68,7 @@ export class Player extends Actor {
         this.attack=2;
         this.defense=2;
         this.inventory=[];
+        this.actionsOn = [];
         this.alive=true;
         this.mortalPeril=false;
     }
