@@ -122,6 +122,8 @@ img.emoji {
         text-align: center;
         width: 350px;
         max-width: calc(100% - 40px);
+        max-height: calc(100vh - 40px);
+        overflow: auto;
         input, button {
             padding: 5px;
             border-radius: 5px;

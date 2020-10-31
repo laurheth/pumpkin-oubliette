@@ -16,7 +16,7 @@ const description = 'Journey into a deep dark dungeon and meet some very dangero
 module.exports = {
     // Entrypoint in ./src/scripts/index.ts
     entry: `${path.resolve(__dirname, src)}/scripts/index.ts`,
-    // devtool: 'inline-source-map',
+    devtool: 'inline-source-map',
     module: {
         rules: [
             // Use ts-loader for TypeScript
