@@ -145,7 +145,7 @@ export const generateDoodad = (map: Map,danger?:number)=>{
             option:"television"
         },
         {
-            weight:(danger>4) ? 1 : 0,
+            weight:(danger>6 && danger < 17) ? 1 : 0,
             option:"trophy"
         },
         {
@@ -254,7 +254,7 @@ export const generateDoodad = (map: Map,danger?:number)=>{
                         "Bag of gold",
                         ["gold"],
                         "You are out of gold!",
-                        3,
+                        1,
                         "Pick up the bag of gold",
                         "More gold! You combine the bags.",
                         map
@@ -408,7 +408,7 @@ export const generateDoodad = (map: Map,danger?:number)=>{
                 actionsOn:[
                     consumeMe(
                         "Bag of peanuts",
-                        ["peanut","food"],
+                        ["peanuts","food"],
                         "Eat a peanut.",
                         "You eat a peanut.",
                         "You are out of peanuts!",

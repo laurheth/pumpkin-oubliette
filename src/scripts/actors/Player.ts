@@ -377,4 +377,11 @@ export class Player extends Actor {
         const baseNum = Math.max(0,3*this.record.kills - this.record.friendships - this.record.pets);
         return Math.ceil(Math.sqrt(baseNum));
     }
+
+    /** Increate max health */
+    increaseMaxHealth(num:number) {
+        this.maxHealth += num;
+        this.health += num;
+        this.updateSidebar();
+    }
 }

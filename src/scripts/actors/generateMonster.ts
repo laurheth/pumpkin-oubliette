@@ -215,7 +215,7 @@ export const generateMonster = (map: Map,danger?:number):Monster=>{
                 messenger:messenger,
                 attitude:'hostile',
                 actionsOn:[
-                    feedMe(name,title,map,"peanut",["They accept your offering and add it to their hoard!"]),
+                    feedMe(name,title,map,"peanuts",["They accept your offering and add it to their hoard!"]),
                     petMe(name,title,map,"Pet"),
                     attackMe(name,title,map,['hammer'],'Hammer',1,3,2),
                     attackMe(name,title,map,['knife'],'Stab',1,3,2),
@@ -295,7 +295,8 @@ export const generateMonster = (map: Map,danger?:number):Monster=>{
                 messenger:messenger,
                 attitude:'hostile',
                 actionsOn:[
-                    feedMe(name,title,map,"gold",["They accept your offering and add it to their hoard!"]),
+                    feedMe(name,title,map,"food",undefined,-2),
+                    feedMe(name,title,map,"gold",["They accept your offering and add it to their hoard!"],2),
                     petMe(name,title,map,"Pet"),
                     attackMe(name,title,map,['hammer'],'Hammer',1,3,2),
                     attackMe(name,title,map,['knife'],'Stab',1,3,2),

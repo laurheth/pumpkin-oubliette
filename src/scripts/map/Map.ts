@@ -15,6 +15,7 @@ import { generateDoodad } from '../actors/generateDoodad';
 import { roomFlavour, hallFlavour } from './roomFlavour';
 
 import { play as resumePlay, stopPlay } from '../index';
+import { generateNPC } from '../actors/generateNPC';
 
 // Try to import twemoji, but if it breaks, skip it
 let twemoji:{parse:(str:string)=>string};
@@ -530,6 +531,8 @@ export class Map {
         // Postprocessing
         this.postProcessing();
 
+        let placeNpc=(this.level % 3 === 0);
+
         // Place items and monsters
         this.nameGen.clearNames();
         this.rooms.forEach(room=>{
@@ -539,9 +542,19 @@ export class Map {
                 const newDoodad = generateDoodad(this,totalLevel)
                 newDoodad.setPosition(randomSpot,this);
             }
-            if (room !== startRoom && this.random.getRandom()>0.5) {
-                const newMonster = generateMonster(this,totalLevel);
-                newMonster.setPosition(room.position,this);
+            if (room !== startRoom) {
+                if(this.random.getRandom()>0.5) {
+                    const newMonster = generateMonster(this,totalLevel);
+                    newMonster.setPosition(room.position,this);
+                }
+                else if (placeNpc && room.position) {
+                    placeNpc=false;
+                    const newNpc = generateNPC(this);
+                    const npcPosition = {...room.position}
+                    npcPosition.x-=1;
+                    npcPosition.y-=1;
+                    newNpc.setPosition(npcPosition,this);
+                }
             }
         });
 
