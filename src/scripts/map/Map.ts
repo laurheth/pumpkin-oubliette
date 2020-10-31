@@ -947,12 +947,19 @@ export class Map {
     }
 
     /** Method to find travel options */
-    getTravelOptions(position: Position): Array<TravelOption> {
+    getTravelOptions(fromPosition: Position): Array<TravelOption> {
         let options:Array<TravelOption> = [];
 
-        const square = this.getSquare(position.x,position.y);
+        const square = this.getSquare(fromPosition.x,fromPosition.y);
         if (square && square.location) {
             const node = square.location;
+            let position:Position;
+            if (node instanceof Room) {
+                position = {...node.position};
+            }
+            else {
+                position = {...fromPosition};
+            }
             const connections = node.connections;
             // Go through each connection
             connections.forEach(otherNode=>{
@@ -964,19 +971,22 @@ export class Map {
                 };
                 // Connected node is a hallway?
                 if(otherNode instanceof Hallway) {
-                    // Intersections exist? Go to the nearest one
+                    // Intersections exist? Add them all as well
                     if(otherNode.intersections.length>0) {
-                        const nearestIntersection = this.getNearestIntersection(position,otherNode);
-                        travelOption.position = {...nearestIntersection};
+                        otherNode.intersections.forEach(intersection=>{
+                            const nextOption = {...travelOption};
+                            nextOption.position = {...intersection};
+                            options.push(nextOption);
+                        });
                     }
                 }
 
                 // Any other case, go to the centre of the other node
                 if (!travelOption.position) {
                     travelOption.position = {...otherNode.position};
+                    options.push(travelOption);
                 }
 
-                options.push(travelOption);
             });
 
             // Are we in a hallway? Add all intersections to the list
@@ -1000,9 +1010,16 @@ export class Map {
                     route.pop();
                     option.route = [...route];
                     for(const pos of route) {
+                        // This option passes over another option
                         if(options.some(otherOption=>otherOption.position.x===pos[0] && otherOption.position.y===pos[1])) {
                             toRemove.push(index);
                             return;
+                        }
+                        const testSquare = this.getSquare(pos[0],pos[1]);
+                        // This option goes through an unrelated node. Very odd. Skip.
+                        if (testSquare && testSquare.location !== node && testSquare.location !== option.node) {
+                            toRemove.push(index);
+                            return
                         }
                     }
                     let direction=[0,0];
