@@ -28,6 +28,10 @@
                 </div>
             </div>
         </div>
+        <button id="openSidebar" class="sideBarOpen">
+            <p class="visuallyHidden">Click to open sidebar.</p>
+            <div></div>
+        </button>
         <div class="sideBar" id="sideBar">
             <h2 id="playerName">Franklin</h2>
             <h3 id="playerTitle">The Pumpkin Slayer</h3>
@@ -39,16 +43,32 @@
                 <li>Item</li>
                 <li>Item</li>
             </ul>
+            <button id="showAbout" class="showAbout">About / Credits</button>
         </div>
     </div>
     <div id="modal" class="modal">
         <form id="dialogue" class="dialogue">
-            <label for="nameInput" id="nameInputLabel">Enter your name</label>
+            <label for="nameInput" id="nameInputLabel">Please enter your name</label>
             <input class="text" type="text" id="nameInput" maxlength="20">
             <button class="submit" type="submit">
                 Submit
             </button>
         </form>
+    </div>
+    <div id="aboutModal" class="modal about">
+        <div class="dialogue">
+            <h2>The Pumpkin Oubliette</h2>
+            <p>A game about voyaging deep into a deep dark dungeon, making mistakes, and trying to find a misdelivered package.</p>
+            <h3>Credits</h3>
+            <p>Game by <a href="https://twitter.com/laurheth" target="_blank" rel="noreferrer noopener">Lauren Hetherington</a>.</p>
+            <p>
+                <span>This game uses emoji from <a href="https://twemoji.twitter.com/" target="_blank" rel="noreferrer noopener">Twemoji</a>.</span>
+                <span>Copyright 2020 Twitter, Inc and other contributors</span>
+                <span>Code licensed under the <a href="http://opensource.org/licenses/MIT" target="_blank" rel="noreferrer noopener">MIT License</a>.</span>
+                <span>Graphics licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer noopener">CC-BY 4.0</a>.</span>
+            </p>
+            <button>Close window</button>
+        </div>
     </div>
 </body>
 </html>

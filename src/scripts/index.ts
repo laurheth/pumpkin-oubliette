@@ -69,6 +69,9 @@ class Game {
 
         this.stop=false;
 
+        // Setup some interface listeners
+        this.interfaceStuff();
+
         // Generate the map
         this.map = new Map({
             width: 40,
@@ -83,6 +86,43 @@ class Game {
             await this.eventManager.advance();
         }
         this.stop=false;
+    }
+
+    /** Set up some interface stuff */
+    interfaceStuff() {
+        // About Modal
+        const aboutButton = document.querySelector('#showAbout');
+        const aboutModal = document.querySelector('#aboutModal');
+        const closeAboutModal = document.querySelector('#aboutModal button');
+
+        // Open about
+        aboutButton.addEventListener('click',(e)=>{
+            e.preventDefault();
+            aboutModal.classList.add('open');
+        });
+
+        // Close about
+        closeAboutModal.addEventListener('click',(e)=>{
+            e.preventDefault();
+            aboutModal.classList.remove('open');
+        });
+
+        // Sidebar
+        let isOpen=false;
+        const toggleSidebar = document.querySelector('#openSidebar');
+        const sideBarElement = document.querySelector('#sideBar');
+        toggleSidebar.addEventListener('click',(e)=>{
+            e.preventDefault();
+            if (!isOpen) {
+                isOpen=true;
+                toggleSidebar.classList.add('clicked');
+                sideBarElement.classList.add('open');
+            } else {
+                isOpen=false;
+                toggleSidebar.classList.remove('clicked');
+                sideBarElement.classList.remove('open');
+            }
+        });
     }
 }
 
