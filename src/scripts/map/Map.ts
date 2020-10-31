@@ -1,4 +1,4 @@
-import { MapParams, theme, generator } from './MapInterfaces';
+import { MapParams, theme, generator, MapTheme } from './MapInterfaces';
 import { Art, Position } from '../util/interfaces';
 import { Display, Random, EventManager } from '../toolkit/toolkit';
 import { Square } from './Square';
@@ -88,8 +88,9 @@ export class Map {
     /** New level. Method to start a new level, either going back to level 1 or going to a lower floor */
     newLevel(parameters: MapParams) {
         // Parameters and defaults
-        const {width=30, height=30, source, level=1, theme="default", density=0.5,...rest} = parameters;
+        const {width=30, height=30, source, level=1, density=0.5,...rest} = parameters;
         let generator = (rest.generator) ? rest.generator : "default";
+        let theme = rest.theme;
 
         this.level=level;
 
@@ -97,6 +98,49 @@ export class Map {
         // TODO: also check if source even exists and is valid
         if (!source && generator === "json") {
             generator = "default";
+        }
+
+        if (!theme) {
+            const themeNum=[0,1,0,1,2,3,1,2,3,0]
+            let themeIndex=0;
+            if (this.level-1 < themeNum.length && this.level-1 >=0) {
+                themeIndex=themeNum[this.level-1];
+            }
+            const themes = [
+                {
+                    roomBg:'brown',
+                    roomFg:'orange',
+                    roomFloor:'green',
+                    hallBg:'#222222',
+                    hallFg:'gray',
+                    hallFloor:'orange',
+                },
+                {
+                    roomBg:'brown',
+                    roomFg:'burlywood',
+                    roomFloor:'gray',
+                    hallBg:'#222222',
+                    hallFg:'gray',
+                    hallFloor:'orange',
+                },
+                {
+                    roomBg:'#880000',
+                    roomFg:'#ff0000',
+                    roomFloor:'gray',
+                    hallBg:'#222222',
+                    hallFg:'gray',
+                    hallFloor:'orange',
+                },
+                {
+                    roomBg:'#005500',
+                    roomFg:'#00dd00',
+                    roomFloor:'gray',
+                    hallBg:'#222222',
+                    hallFg:'gray',
+                    hallFloor:'orange',
+                },
+            ];
+            theme = themes[themeIndex];
         }
 
         // Boot up the pathfinder with adusted defaults for this level
@@ -380,7 +424,7 @@ export class Map {
     }
 
     /** Generate the map */
-    generateMap(generator: generator, theme: theme, fillFraction:number) {
+    generateMap(generator: generator, theme: MapTheme, fillFraction:number) {
         const targetSquares = fillFraction * this.width * this.height;
         let currentSquares=0;
         let maxIterations=100;
@@ -395,8 +439,8 @@ export class Map {
                 },
                 width,
                 height,
-                {art:'#',foreground:'orange',background:'brown'},
-                {art:'.',foreground:'green',background:'black'}
+                {art:'#',foreground:theme.roomFg,background:theme.roomBg},
+                {art:'.',foreground:theme.roomFloor,background:'black'}
             )) {
                 currentSquares += width*height;
                 // If this isn't the first room, get the most recently added room
@@ -426,8 +470,8 @@ export class Map {
                             currentSquares += this.drawHallway(
                                 room,
                                 this.rooms[index],
-                                {art:'#',foreground:'gray',background:'#222222'},
-                                {art:'.',foreground:'orange',background:'black'},
+                                {art:'#',foreground:theme.hallFg,background:theme.hallBg},
+                                {art:'.',foreground:theme.hallFloor,background:'black'},
                             );
                         }
                     }

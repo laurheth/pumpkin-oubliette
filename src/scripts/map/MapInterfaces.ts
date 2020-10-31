@@ -12,11 +12,20 @@ export interface SquareParams {
     seeThrough?:boolean;
 }
 
+export interface MapTheme {
+    roomBg:string;
+    roomFg:string;
+    roomFloor:string;
+    hallBg:string;
+    hallFg:string;
+    hallFloor:string;
+}
+
 export interface MapParams {
     generator?: generator;
     source?: object;
     level?: number;
-    theme?: theme;
+    theme?: MapTheme;
     width?: number;
     height?: number;
     density?: number;
