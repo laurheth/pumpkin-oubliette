@@ -14,7 +14,6 @@ export class Random {
             seed = Math.floor(Date.now());
         }
         this.seed = seed;
-        console.log('Random seed:', this.seed);
         this.weyl = 0;
         this.x = 0;
         this.base = (base) ? base : 100000;

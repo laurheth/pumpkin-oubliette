@@ -58,11 +58,6 @@ export class Messenger {
 
     /** Show actions */
     showActions(actions?:Array<Action>) {
-        // console.trace('Actions...');
-        console.log('Actions...');
-        if (actions) {
-            console.log([...actions]);
-        }
         if (!actions) {
             const allKeys = Object.keys(this.actions);
             if (allKeys.length===2) {

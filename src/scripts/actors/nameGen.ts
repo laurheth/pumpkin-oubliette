@@ -60,7 +60,6 @@ export class NameGen {
     }
 
     getName(params:{prefix?:string, suffix?:string}) {
-        console.log('ghost names:',this.ghostNames);
         let name;
         let attempts=0;
         do {
