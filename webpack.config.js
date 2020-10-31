@@ -16,7 +16,7 @@ const description = 'Journey into a deep dark dungeon and meet some very dangero
 module.exports = {
     // Entrypoint in ./src/scripts/index.ts
     entry: `${path.resolve(__dirname, src)}/scripts/index.ts`,
-    devtool: 'inline-source-map',
+    // devtool: 'inline-source-map',
     module: {
         rules: [
             // Use ts-loader for TypeScript
@@ -77,7 +77,7 @@ module.exports = {
                         loader: 'file-loader',
                         options: {
                             name(resourcePath, resourceQuery) {
-                                return `/[name].[ext]`
+                                return `[name].[ext]`
                             },
                             esModule: false
                         }
@@ -98,7 +98,7 @@ module.exports = {
                 loader: 'file-loader',
                 options: {
                     name(resourcePath, resourceQuery) {
-                        return `/${assets}/[name][sha512:hash:base64:7].[ext]`
+                        return `${assets}/[name][sha512:hash:base64:7].[ext]`
                     },
                     esModule: false
                 }
@@ -113,7 +113,7 @@ module.exports = {
     output: {
         filename: 'app.js',
         path: path.resolve(__dirname, dist),
-        publicPath: path.resolve(__dirname,dist)
+        publicPath: './'
     },
     plugins: [
         // Cleanup the dist directory
