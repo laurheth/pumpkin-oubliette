@@ -154,16 +154,10 @@ export class Map {
 
     /** Get the next level */
     nextLevel(level:number) {
-        // Randomize the parameters a bit
-        const targetSquares = 1600 + 200 * (level-1);
-        const density = this.random.getNumber(0.4,0.8);
-        const dim = Math.floor(Math.sqrt(targetSquares / density));
-        
         // Construct the params object
         const params:MapParams = {
-            width: dim,
-            height: dim,
-            density: density,
+            width: 40,
+            height: 40,
             level:level
         }
 
@@ -230,6 +224,10 @@ export class Map {
         if (square && square.visible) {
             // Exit is in sight! Add to the actions list
             if (this.level<10) {
+                const floors=['second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth'];
+                let nth:string;
+                if (this.level-1 >= floors.length) {nth = `${this.level+1}th`;}
+                else {nth = floors[this.level-1];}
                 this.messenger.addActionList('Exit Stairs',[
                     {
                         description:"Go down the stairs and exit the level!",
@@ -238,7 +236,12 @@ export class Map {
                                 target:{...this.exit},
                                 distance:0,
                                 action:()=>{
-                                    this.messenger.addMessage({message:"You go down the stairs..."});
+                                    if (this.level<9) {
+                                        this.messenger.addMessage({message:`You go down the stairs to the ${nth} floor...`});
+                                    }
+                                    else {
+                                        this.messenger.addMessage({message:`You go down the stairs to the ${nth} floor. Your package is here, you can feel it!`});
+                                    }
                                     this.nextLevel(this.level+1);
                                 }
                             });
@@ -248,7 +251,7 @@ export class Map {
                 ]);
             }
             else {
-                const deliveries = ["limited edition teddy bear","platonic ideal of tacos","wicked good comic book","limited edition aluminum foil ball","box of cookies","new cutting board","new bookshelf","new television","new patio furniture","new oven mitts","limited edition chicken statue","box of candy","ghost costume","nail clippers","new toiler paper","hand sanitizer","boardgame","blanket","cutlery set","water bottle","toothbrush","comb"];
+                const deliveries = ["limited edition teddy bear","platonic ideal of tacos","wicked good comic book","limited edition aluminum foil ball","box of cookies","new cutting board","new bookshelf","new television","new patio furniture","new oven mitts","limited edition chicken statue","box of candy","ghost costume","nail clippers","new toilet paper","hand sanitizer","boardgame","blanket","cutlery set","water bottle","toothbrush","comb"];
                 const delivery:string = this.random.getRandomElement(deliveries);
                 this.messenger.addActionList('Your misdelivered package, the goal!',[
                     {
@@ -978,14 +981,13 @@ export class Map {
                             nextOption.position = {...intersection};
                             options.push(nextOption);
                         });
+                        return;
                     }
                 }
 
                 // Any other case, go to the centre of the other node
-                if (!travelOption.position) {
-                    travelOption.position = {...otherNode.position};
-                    options.push(travelOption);
-                }
+                travelOption.position = {...otherNode.position};
+                options.push(travelOption);
 
             });
 
