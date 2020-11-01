@@ -2,7 +2,7 @@
 
 The Pumpkin Oubliette is an attempt to meld a roguelike with a text based adventure game. The game world and its denizens are generated in a roguelike manner, but play is controlled by choosing text options, like "move north" or "Pet Sally the cat". The results will strike fear into your bones! And, I hope, be accessible to assistive technology.
 
-You can play a [live release of the game](https://laurheth.itch.io/the-pumpkin-oubliette) on Itch. A single successful run should be under 30 minutes.
+You can play a [live release of the game](https://laurheth.itch.io/the-pumpkin-oubliette) on Itch. A single successful run should be around 30 minutes.
 
 ## Features
 
